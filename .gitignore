@@ -1,0 +1,7 @@
+.env
+ca.crt
+venv/
+__pycache__/
+*.pyc
+instance/
+ca.pem
