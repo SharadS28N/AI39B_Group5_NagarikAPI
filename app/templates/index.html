@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>NagarikAPI | Smart KYC Verification</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/hero.css') }}">
+</head>
+<body>
+    <header class="top-ribbon">
+        <p>Trusted onboarding infrastructure for Nepalese banks and fintech products</p>
+    </header>
+
+    <main class="hero-page">
+        <nav class="hero-nav" aria-label="Primary navigation">
+            <a class="brand" href="#" aria-label="NagarikAPI home">
+                <span class="brand-mark" aria-hidden="true"></span>
+                <span>NagarikAPI</span>
+            </a>
+
+            <div class="nav-links">
+                <a href="#">Solutions</a>
+                <a href="#">Security</a>
+                <a href="#">Pricing</a>
+                <a href="#">Docs</a>
+            </div>
+
+            <a class="btn btn-outline" href="#">Request Sandbox</a>
+        </nav>
+
+        <section class="hero" aria-labelledby="hero-title">
+            <div class="hero-copy">
+                <p class="eyebrow">AI Powered KYC Verification</p>
+                <h1 id="hero-title">Fast, Compliant Identity Checks for Nepal Banking</h1>
+                <p class="lead">
+                    Scan National ID cards and passports, extract required fields via OCR,
+                    and verify customer KYC data instantly through secure API integrations.
+                </p>
+
+                <form class="hero-cta" action="#" method="post" novalidate>
+                    <label class="sr-only" for="work-email">Work email</label>
+                    <input id="work-email" name="email" type="email" placeholder="Enter your work email" autocomplete="email" required>
+                    <button type="submit" class="btn btn-primary">Book a Demo</button>
+                </form>
+
+                <div class="trust-row" aria-label="Key capabilities">
+                    <span>OCR Extraction</span>
+                    <span>Face Match</span>
+                    <span>Regulatory Audit Trail</span>
+                </div>
+            </div>
+
+            <div class="hero-visual" aria-hidden="true">
+                <div class="grid-plane"></div>
+
+                <article class="core-chip">
+                    <div class="chip-frame"></div>
+                    <div class="chip-center">KYC</div>
+                </article>
+
+                <div class="floating-cards">
+                    <div class="stack-card card-id">National ID</div>
+                    <div class="stack-card card-passport">Passport</div>
+                    <div class="stack-card card-bank">Bank Core API</div>
+                </div>
+
+                <div class="lanes">
+                    <span>Document OCR</span>
+                    <span>Field Validation</span>
+                    <span>Risk Flags</span>
+                    <span>Compliance Logs</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/hero.js') }}" defer></script>
+</body>
+</html>
