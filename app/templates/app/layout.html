@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Runlayer - Connect Skills{% endblock %}</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Tailwind CSS (CDN for rapid prototyping) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: '#8b5cf6', // The purple accent
+              dark: '#050505',
+              darker: '#000000',
+              gray: {
+                800: '#1f2937',
+                900: '#111827',
+              }
+            },
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            }
+          }
+        }
+      }
+    </script>
+    
+    <!-- Global CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/globals.css') }}">
+    
+    {% block head %}{% endblock %}
+</head>
+<body class="antialiased min-h-screen flex flex-col relative">
+    
+    <!-- Top banner -->
+    <div class="bg-primary/90 text-white text-sm font-medium py-2 px-4 flex justify-center items-center hover:bg-primary transition-colors cursor-pointer group">
+        <span>Book a meeting with Runlayer at RSAC in San Francisco on March 23-26th</span>
+        <i data-lucide="arrow-right" class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform"></i>
+    </div>
+
+    <!-- We can include a component for the Navbar -->
+    {% include 'components/navbar.html' %}
+
+    <main class="flex-grow relative">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Initialize Lucide Icons -->
+    <script>
+      lucide.createIcons();
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
