@@ -1,18 +1,160 @@
-{% extends 'pages/base.html' %}
+{% extends 'layouts/base.html' %}
 
-{% block title %}About | NagarikAPI{% endblock %}
+{% block title %}About Our Mission | NagarikAPI{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/hero.css') }}">
+<style>
+  .ng-about-section {
+    padding: 160px 0 100px;
+    background: #050505;
+  }
+
+  .ng-mission-box {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto 120px;
+  }
+
+  .ng-mission-box h1 {
+    font-size: clamp(3rem, 6vw, 5rem);
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 2rem;
+    letter-spacing: -0.04em;
+  }
+
+  .ng-mission-box p {
+    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 0.45);
+    line-height: 1.6;
+    letter-spacing: -0.01em;
+  }
+
+  /* Team/Values grid */
+  .ng-values-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+
+  .ng-value-card {
+    background: rgba(255, 255, 255, 0.015);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 24px;
+    padding: 3rem;
+    transition: background 0.3s ease;
+  }
+
+  .ng-value-card:hover {
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .ng-value-card h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 1rem;
+  }
+
+  .ng-value-card p {
+    color: rgba(255, 255, 255, 0.45);
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  /* Story section */
+  .ng-story-section {
+    margin-top: 100px;
+    padding-top: 100px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .ng-story-content {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 80px;
+    align-items: start;
+  }
+
+  .ng-story-content h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #ffffff;
+  }
+
+  .ng-story-body {
+    color: rgba(255, 255, 255, 0.55);
+    line-height: 1.8;
+  }
+
+  .ng-story-body p { margin-bottom: 1.5rem; }
+
+  @media (max-width: 900px) {
+    .ng-values-grid, .ng-story-content {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+  }
+</style>
+{% endblock %}
 
 {% block content %}
-<section class="panel">
-    <h1>About NagarikAPI</h1>
-    <p>NagarikAPI helps financial institutions onboard customers safely and quickly through standards-based identity verification workflows.</p>
-</section>
-<section class="panel">
-    <h2>What we focus on</h2>
-    <ul>
-        <li>Regulatory alignment for Nepal banking requirements</li>
-        <li>Reliable developer integrations and observability</li>
-        <li>Transparent operational controls for compliance teams</li>
-    </ul>
-</section>
+<main class="ng-about-section">
+  <div class="ng-wrap">
+    
+    <!-- Mission Header -->
+    <div class="ng-mission-box" data-animate>
+      <h1>The trust layer for Nepal's digital economy.</h1>
+      <p>
+        At NagarikAPI, we eliminate the friction between identity and innovation. 
+        By building the most secure, automated, and legally compliant verification infrastructure, 
+        we enable the next generation of financial inclusion.
+      </p>
+    </div>
+
+    <!-- Values Card Grid -->
+    <div class="ng-values-grid">
+      <div class="ng-value-card" data-animate style="--reveal-delay: 0ms">
+        <i data-lucide="shield-check" class="w-8 h-8 text-primary mb-6"></i>
+        <h3>Security by Default</h3>
+        <p>Security isn't a post-script for us. We build identity systems that exceed international standards for data protection and PII encryption.</p>
+      </div>
+      <div class="ng-value-card" data-animate style="--reveal-delay: 100ms">
+        <i data-lucide="cpu" class="w-8 h-8 text-primary mb-6"></i>
+        <h3>Local Context, Global Tech</h3>
+        <p>We combine advanced AI models with deep local knowledge of Nepal's unique documentation nuances and regulatory landscape.</p>
+      </div>
+    </div>
+
+    <!-- Story Section -->
+    <section class="ng-story-section" data-animate>
+      <div class="ng-story-content">
+        <h2>The Story behind NagarikAPI</h2>
+        <div class="ng-story-body">
+          <p>
+            NagarikAPI was born from a simple observation: financial services in Nepal were being held back by paper-based identities and manual review. Customer onboarding took days, fraud was hard to catch, and legitimate users were dropping out of the funnel.
+          </p>
+          <p>
+            We realized that for Nepal's fintech scene to truly scale, it needed a "Source of Truth" — a single API that could verify any user, on any device, instantly.
+          </p>
+          <p>
+            Today, NagarikAPI is used by leading digital wallets, remittance companies, and commercial banks to verify thousands of users daily. We are more than just an OCR engine; we are the engine of trust in a digital-first nation.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Support/CTA Strip -->
+    <div style="margin-top: 120px; padding: 4rem; background: rgba(255,255,255,0.02); border-radius: 32px; border: 1px solid rgba(255,255,255,0.06); text-align: center;" data-animate>
+      <h3 style="color: #ffffff; font-size: 1.5rem; margin-bottom: 1rem;">Work with us</h3>
+      <p style="color: rgba(255,255,255,0.45); margin-bottom: 2rem;">Interested in joining the team or becoming a partner?</p>
+      <div style="display: flex; gap: 1rem; justify-content: center;">
+        <a href="{{ url_for('main.contact') }}" class="ng-btn ng-btn--primary">Get in touch</a>
+        <a href="{{ url_for('main.index') }}" class="ng-btn ng-btn--ghost">Back to home</a>
+      </div>
+    </div>
+
+  </div>
+</main>
 {% endblock %}

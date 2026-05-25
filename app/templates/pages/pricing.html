@@ -1,23 +1,242 @@
-{% extends 'pages/base.html' %}
+{% extends 'layouts/base.html' %}
 
-{% block title %}Pricing | NagarikAPI{% endblock %}
+{% block title %}Pricing & Plans | NagarikAPI{% endblock %}
+
+{% block extra_css %}
+<!-- We use the same hero.css for consistent global styles -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/hero.css') }}">
+<style>
+  /* Page specific overrides for Pricing */
+  .ng-pricing-section {
+    padding: 160px 0 100px;
+    background: radial-gradient(circle at 50% 0%, rgba(139, 92, 246, 0.08) 0%, #050505 60%);
+  }
+
+  .ng-pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 4rem;
+  }
+
+  .ng-price-card {
+    background: rgba(255, 255, 255, 0.015);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 24px;
+    padding: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ng-price-card:hover {
+    border-color: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.03);
+    transform: translateY(-4px);
+  }
+
+  .ng-price-card.featured {
+    border-color: rgba(139, 92, 246, 0.4);
+    background: rgba(139, 92, 246, 0.04);
+  }
+
+  .ng-price-card.featured::before {
+    content: 'MOST POPULAR';
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #a78bfa;
+    letter-spacing: 0.05em;
+    background: rgba(139, 92, 246, 0.15);
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+  }
+
+  .ng-price-card h3 {
+    font-size: 1.25rem;
+    color: #ffffff;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+  }
+
+  .ng-price-card .price-tag {
+    margin: 1.5rem 0;
+    display: flex;
+    align-items: baseline;
+    gap: 0.25rem;
+  }
+
+  .ng-price-card .amount {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: -0.02em;
+  }
+
+  .ng-price-card .period {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.875rem;
+  }
+
+  .ng-price-card ul {
+    list-style: none;
+    padding: 0;
+    margin: 1.5rem 0 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+    flex: 1;
+  }
+
+  .ng-price-card li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.9375rem;
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .ng-price-card li svg {
+    color: #8b5cf6;
+    flex-shrink: 0;
+  }
+
+  .ng-price-card .ng-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  @media (max-width: 900px) {
+    .ng-pricing-grid {
+      grid-template-columns: 1fr;
+      max-width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  }
+</style>
+{% endblock %}
 
 {% block content %}
-<section class="panel">
-    <h1>Pricing</h1>
-    <p>Transparent pricing designed for pilots, growing fintech products, and enterprise deployments.</p>
-</section>
-<section class="panel">
-    <h2>Plans</h2>
-    <table class="table" aria-label="Pricing plans">
-        <thead>
-            <tr><th>Plan</th><th>Monthly Checks</th><th>Support</th></tr>
-        </thead>
-        <tbody>
-            <tr><td>Starter</td><td>Up to 5,000</td><td>Email</td></tr>
-            <tr><td>Growth</td><td>Up to 50,000</td><td>Priority</td></tr>
-            <tr><td>Enterprise</td><td>Custom</td><td>Dedicated</td></tr>
-        </tbody>
-    </table>
-</section>
+<main class="ng-pricing-section">
+  <div class="ng-wrap">
+    <div class="ng-showcase__head" data-animate>
+      <h1 class="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight">Scale with confidence.</h1>
+      <p class="text-gray-400 text-lg max-w-2xl mx-auto">
+        From early-stage startups to national banks, our pricing scales with your verification volume. Transparent,
+        secure, and built for growth.
+      </p>
+    </div>
+
+    <div class="ng-pricing-grid">
+      <!-- Sandbox -->
+      <article class="ng-price-card" data-animate style="--reveal-delay:0ms">
+        <h3>Sandbox</h3>
+        <p style="font-size: 0.875rem; color: rgba(255,255,255,0.4);">Ideal for development and testing.</p>
+        <div class="price-tag">
+          <span class="amount">$0</span>
+          <span class="period">/mo</span>
+        </div>
+        <ul aria-label="Sandbox plan features">
+          <li>
+            <i data-lucide="check" class="w-4 h-4"></i>
+            100 free verifications /mo
+          </li>
+          <li>
+            <i data-lucide="check" class="w-4 h-4"></i>
+            Full API access (Test)
+          </li>
+          <li>
+            <i data-lucide="check" class="w-4 h-4"></i>
+            Community support
+          </li>
+          <li>
+            <i data-lucide="check" class="w-4 h-4"></i>
+            Basic dashboard
+          </li>
+        </ul>
+        <a href="{{ url_for('auth.register') }}" class="ng-btn ng-btn--ghost">Get started free</a>
+      </article>
+
+      <!-- Growth -->
+      <article class="ng-price-card featured" data-animate style="--reveal-delay:100ms">
+        <h3>Growth</h3>
+        <p style="font-size: 0.875rem; color: rgba(255,255,255,0.4);">Best for scaling production apps.</p>
+        <div class="price-tag">
+          <span class="amount">$199</span>
+          <span class="period">/mo</span>
+        </div>
+        <ul aria-label="Growth plan features">
+          <li>
+            <i data-lucide="check" class="w-4 h-4"></i>
+            2,500 verifications /mo
+          </li>
+          <li>
+            <i data-lucide="check" class="w-4 h-4"></i>
+            Production API access
+          </li>
+          <li>
+            <i data-lucide="check" class="w-4 h-4"></i>
+            Liveness & Face Match
+          </li>
+          <li>
+            <i data-lucide="check" class="w-4 h-4"></i>
+            Priority support row
+          </li>
+          <li>
+            <i data-lucide="check" class="w-4 h-4"></i>
+            Webhook support
+          </li>
+        </ul>
+        <a href="{{ url_for('auth.register') }}" class="ng-btn ng-btn--primary">Start 14-day trial</a>
+      </article>
+
+      <!-- Enterprise -->
+      <article class="ng-price-card" data-animate style="--reveal-delay:200ms">
+        <h3>Enterprise</h3>
+        <p style="font-size: 0.875rem; color: rgba(255,255,255,0.4);">For high-volume institutions.</p>
+        <div class="price-tag">
+          <span class="amount">Custom</span>
+        </div>
+        <ul aria-label="Enterprise plan features">
+          <li>
+            <i data-lucide="check" class="w-4 h-4"></i>
+            Unlimited verification volume
+          </li>
+          <li>
+            <i data-lucide="check" class="w-4 h-4"></i>
+            SLA & Uptime guarantees
+          </li>
+          <li>
+            <i data-lucide="check" class="w-4 h-4"></i>
+            On-premise deployment
+          </li>
+          <li>
+            <i data-lucide="check" class="w-4 h-4"></i>
+            Custom policy engine
+          </li>
+          <li>
+            <i data-lucide="check" class="w-4 h-4"></i>
+            Dedicated account manager
+          </li>
+        </ul>
+        <a href="{{ url_for('main.contact') }}" class="ng-btn ng-btn--ghost">Contact sales</a>
+      </article>
+    </div>
+
+    <!-- Bottom FAQ or Details strip -->
+    <div style="margin-top: 5rem; text-align: center; opacity: 0.5; font-size: 0.875rem;">
+      <div class="ng-badge-row" style="margin: 0 auto 1.5rem;">
+        <span class="ng-badge">Bank-grade encryption</span>
+        <span class="ng-badge">SOC 2 compliant</span>
+        <span class="ng-badge">99.9% availability</span>
+      </div>
+      <p>All plans include identity reporting, audit logs, and compliance mapping.</p>
+    </div>
+  </div>
+</main>
 {% endblock %}

@@ -1,18 +1,118 @@
-{% extends 'pages/base.html' %}
+{% extends 'layouts/base.html' %}
 
-{% block title %}Careers | NagarikAPI{% endblock %}
+{% block title %}Join the Team | NagarikAPI{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/hero.css') }}">
+<style>
+  .ng-careers-section {
+    padding: 160px 0 100px;
+    background: #050505;
+  }
+
+  .ng-job-list {
+    margin-top: 4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .ng-job-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.015);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 24px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  .ng-job-card:hover {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.12);
+    transform: translateX(8px);
+  }
+
+  .ng-job-card h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 0.25rem;
+  }
+
+  .ng-job-card p {
+    font-size: 0.8125rem;
+    color: rgba(255, 255, 255, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .ng-job-card i {
+    color: rgba(255, 255, 255, 0.2);
+    transition: color 0.3s ease, transform 0.3s ease;
+  }
+
+  .ng-job-card:hover i {
+    color: #8b5cf6;
+    transform: translateX(4px);
+  }
+
+  @media (max-width: 640px) {
+    .ng-job-card {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1.5rem;
+    }
+    .ng-job-card i { display: none; }
+  }
+</style>
+{% endblock %}
 
 {% block content %}
-<section class="panel">
-    <h1>Careers</h1>
-    <p>Join us to build trustworthy digital identity systems for financial access.</p>
-</section>
-<section class="panel">
-    <h2>Open roles</h2>
-    <ul>
-        <li>Backend Engineer (Python / API)</li>
-        <li>ML Engineer (Document Intelligence)</li>
-        <li>Compliance Operations Specialist</li>
-    </ul>
-</section>
+<main class="ng-careers-section">
+  <div class="ng-wrap">
+    <div class="ng-showcase__head" data-animate>
+      <div class="ng-eyebrow" style="margin: 0 auto 1.5rem;">Join the foundation</div>
+      <h1 class="text-4xl md:text-7xl font-bold text-white mb-8 tracking-tighter">Build what matters.</h1>
+      <p class="text-gray-400 text-lg max-w-2xl mx-auto">
+        We're looking for thinkers, builders, and dreamers to join our mission of building the trust layer for Nepal.
+      </p>
+    </div>
+
+    <div class="ng-job-list">
+      
+      <a href="#" class="ng-job-card" data-animate style="--reveal-delay: 0ms">
+        <div>
+          <h3>Senior Computer Vision Engineer</h3>
+          <p>Engineering • Remote (Nepal / South Asia)</p>
+        </div>
+        <i data-lucide="arrow-right"></i>
+      </a>
+
+      <a href="#" class="ng-job-card" data-animate style="--reveal-delay: 100ms">
+        <div>
+          <h3>Product Designer (Design Systems)</h3>
+          <p>Design • Hybrid (Kathmandu)</p>
+        </div>
+        <i data-lucide="arrow-right"></i>
+      </a>
+
+      <a href="#" class="ng-job-card" data-animate style="--reveal-delay: 200ms">
+        <div>
+          <h3>Solutions Architect</h3>
+          <p>Sales • On-site (Kathmandu)</p>
+        </div>
+        <i data-lucide="arrow-right"></i>
+      </a>
+
+    </div>
+
+    <!-- Bottom Info -->
+    <div style="margin-top: 80px; text-align: center; color: rgba(255,255,255,0.3); font-size: 0.875rem;" data-animate>
+      Don't see a role that fits? <a href="{{ url_for('main.contact') }}" style="color: #ffffff; text-decoration: none; font-weight: 500;">Email us anyway.</a>
+    </div>
+  </div>
+</main>
 {% endblock %}

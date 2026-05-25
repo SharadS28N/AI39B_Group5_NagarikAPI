@@ -1,18 +1,225 @@
-{% extends 'pages/base.html' %}
+{% extends 'layouts/base.html' %}
 
-{% block title %}Docs | NagarikAPI{% endblock %}
+{% block title %}Developer Documentation | NagarikAPI{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/hero.css') }}">
+<style>
+    .ng-docs-layout {
+        padding-top: 64px; /* Navbar height */
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        min-height: 100vh;
+        background: #050505;
+    }
+
+    .ng-docs-sidebar {
+        border-right: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 4rem 2rem 2rem;
+        position: sticky;
+        top: 64px;
+        height: calc(100vh - 64px);
+        overflow-y: auto;
+        background: #050505;
+    }
+
+    .ng-docs-content {
+        padding: 4rem 4rem 6rem;
+        max-width: 900px;
+    }
+
+    /* Sidebar Headings */
+    .ng-sidebar-label {
+        font-size: 0.65rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: rgba(255,255,255,0.25);
+        margin-top: 2rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .ng-sidebar-label:first-child { margin-top: 0; }
+
+    .ng-sidebar-link {
+        display: block;
+        padding: 0.5rem 0;
+        font-size: 0.875rem;
+        color: rgba(255,255,255,0.4);
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .ng-sidebar-link:hover, .ng-sidebar-link.active {
+        color: #ffffff;
+    }
+
+    .ng-sidebar-link.active {
+        font-weight: 500;
+        color: #a78bfa;
+    }
+
+    /* Content Typography */
+    .ng-docs-content h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 1.5rem;
+        letter-spacing: -0.03em;
+    }
+
+    .ng-docs-content p {
+        font-size: 1.0625rem;
+        color: rgba(255, 255, 255, 0.5);
+        line-height: 1.7;
+        margin-bottom: 1.5rem;
+    }
+
+    .ng-docs-content h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #ffffff;
+        margin: 2.5rem 0 1rem;
+    }
+
+    /* Code Blocks */
+    .ng-code-block {
+        background: #080808;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 12px;
+        margin: 1.5rem 0;
+        overflow: hidden;
+    }
+
+    .ng-code-head {
+        padding: 0.75rem 1rem;
+        background: rgba(255,255,255,0.02);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .ng-code-head span {
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: rgba(255,255,255,0.3);
+    }
+
+    .ng-code-body {
+        padding: 1.5rem;
+        font-family: 'Fira Code', 'Menlo', monospace;
+        font-size: 0.875rem;
+        line-height: 1.6;
+        color: rgba(255,255,255,0.8);
+        overflow-x: auto;
+    }
+
+    .ng-code-body .tok-kw { color: #c084fc; font-weight: 600; }
+    .ng-code-body .tok-str { color: #4ade80; }
+    .ng-code-body .tok-fn { color: #60a5fa; }
+    .ng-code-body .tok-cm { color: rgba(255,255,255,0.25); font-style: italic; }
+
+    /* Tips & Alerts */
+    .ng-docs-tip {
+        display: flex;
+        gap: 1rem;
+        padding: 1.25rem;
+        background: rgba(139, 92, 246, 0.04);
+        border: 1px solid rgba(139, 92, 246, 0.15);
+        border-radius: 12px;
+        margin: 2rem 0;
+    }
+
+    .ng-docs-tip i { color: #8b5cf6; flex-shrink: 0; }
+    .ng-docs-tip p { margin: 0; font-size: 0.875rem; color: rgba(255,255,255,0.7); }
+
+    @media (max-width: 1024px) {
+        .ng-docs-layout { grid-template-columns: 1fr; }
+        .ng-docs-sidebar { display: none; }
+        .ng-docs-content { padding: 3rem 1.5rem; }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<section class="panel">
-    <h1>Developer docs</h1>
-    <p>Integrate in minutes with simple authentication, request schemas, and callback events.</p>
-</section>
-<section class="panel">
-    <h2>Quick start</h2>
-    <ol>
-        <li>Create a company API key from your admin dashboard.</li>
-        <li>Send document metadata to the verification endpoint.</li>
-        <li>Receive structured OCR and decision status updates.</li>
-    </ol>
-</section>
+<div class="ng-docs-layout">
+    <aside class="ng-docs-sidebar">
+        <label class="ng-sidebar-label">Getting Started</label>
+        <a href="#" class="ng-sidebar-link active">Introduction</a>
+        <a href="#" class="ng-sidebar-link">Authentication</a>
+        <a href="#" class="ng-sidebar-link">Rate Limiting</a>
+        <a href="#" class="ng-sidebar-link">Environments</a>
+
+        <label class="ng-sidebar-label">Guides</label>
+        <a href="#" class="ng-sidebar-link">KYC Workflow</a>
+        <a href="#" class="ng-sidebar-link">OCR Integration</a>
+        <a href="#" class="ng-sidebar-link">Liveness Detection</a>
+        
+        <label class="ng-sidebar-label">API Reference</label>
+        <a href="#" class="ng-sidebar-link">POST /v1/ocr</a>
+        <a href="#" class="ng-sidebar-link">POST /v1/face-match</a>
+        <a href="#" class="ng-sidebar-link">GET /v1/verification</a>
+
+        <label class="ng-sidebar-label">SDKs</label>
+        <a href="#" class="ng-sidebar-link">Python SDK</a>
+        <a href="#" class="ng-sidebar-link">Node.js Client</a>
+        <a href="#" class="ng-sidebar-link">React Component</a>
+    </aside>
+
+    <main class="ng-docs-content" data-animate>
+        <h1>Introduction</h1>
+        <p>
+            NagarikAPI is an enterprise-grade identity platform that allows you to automate KYC, prevent fraud, and maintain compliance with a single REST interface.
+        </p>
+
+        <h3>Quickstart</h3>
+        <p>
+            To begin using the NagarikAPI platform, you'll need an API secret key. Register for a company account and visit your dashboard to manage your credentials. 
+        </p>
+
+        <div class="ng-docs-tip">
+            <i data-lucide="info"></i>
+            <p><strong>Note:</strong> We recommend using our official SDKs to handle authentication, retries, and document uploads automatically.</p>
+        </div>
+
+        <h3>Installation</h3>
+        <p>Install the official Python client using pip:</p>
+        
+        <div class="ng-code-block">
+            <div class="ng-code-head">
+                <span>Terminal</span>
+            </div>
+            <div class="ng-code-body">
+                <code>pip <span class="tok-fn">install</span> nagarikapi-python</code>
+            </div>
+        </div>
+
+        <h3>Verify your first identity</h3>
+        <p>Here is a complete example of initiating an OCR request using our Python client.</p>
+
+        <div class="ng-code-block">
+            <div class="ng-code-head">
+                <span>example.py</span>
+            </div>
+            <div class="ng-code-body">
+                <code><span class="tok-kw">import</span> nagarikapi<br><br>
+<span class="tok-cm"># Initialize the client</span><br>
+client = nagarikapi.<span class="tok-fn">Client</span>(api_key=<span class="tok-str">"ng_sk_prod_123..."</span>)<br><br>
+<span class="tok-cm"># Process a citizenship card</span><br>
+result = client.ocr.<span class="tok-fn">process</span>(<br>
+&nbsp;&nbsp;&nbsp;image_path=<span class="tok-str">" citizenship.jpg"</span>,<br>
+&nbsp;&nbsp;&nbsp;type=<span class="tok-str">"NP_ID_CARD"</span><br>
+)<br><br>
+<span class="tok-fn">print</span>(result.full_name)</code>
+            </div>
+        </div>
+
+        <h3>Next steps</h3>
+        <p>
+            Explore our API reference to learn about advanced features like biometric matching, AML screening, and custom risk-scoring policies.
+        </p>
+
+    </main>
+</div>
 {% endblock %}

@@ -1,18 +1,166 @@
-{% extends 'pages/base.html' %}
+{% extends 'layouts/base.html' %}
 
 {% block title %}User Dashboard | NagarikAPI{% endblock %}
 
+{% block extra_css %}
+<style>
+    .dashboard-container {
+        padding-top: 120px;
+        min-height: 100vh;
+    }
+    .stats-card {
+        background: rgba(255, 255, 255, 0.02);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        padding: 24px;
+        transition: all 0.3s ease;
+    }
+
+
+    .stats-card:hover {
+        border-color: var(--color-primary);
+        transform: translateY(-2px);
+    }
+    .data-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 8px;
+    }
+    .data-table tr {
+        background: #0a0a0a;
+        transition: all 0.2s ease;
+    }
+    .data-table tr:hover {
+        background: #111;
+    }
+    .data-table td, .data-table th {
+        padding: 16px;
+    }
+    .data-table th {
+        color: #444;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        text-align: left;
+    }
+
+    .badge {
+        padding: 4px 12px;
+        border-radius: 99px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+    .badge-pending { background: #3b2b00; color: #ffcc00; }
+    .badge-approved { background: #003311; color: #00ff66; }
+    .badge-rejected { background: #330000; color: #ff4444; }
+</style>
+{% endblock %}
+
 {% block content %}
-<section class="panel">
-    <h1>User dashboard</h1>
-    <p>Welcome, {{ current_user.full_name }}. Track your KYC request status and history here.</p>
-</section>
-<section class="panel">
-    <h2>Account details</h2>
-    <ul>
-        <li>Email: {{ current_user.email }}</li>
-        <li>Role: {{ current_user.role }}</li>
-        <li>Member since: {{ current_user.created_at.strftime('%Y-%m-%d') if current_user.created_at else 'N/A' }}</li>
-    </ul>
-</section>
+<div class="dashboard-container px-6 ng-glow-bg">
+
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-6">
+            <div>
+                <h1 class="text-3xl font-bold text-white mb-2">Hello, {{ current_user.full_name }}</h1>
+                <p class="text-gray-400">Welcome to your identity management hub</p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button class="bg-white text-black font-bold py-2.5 px-6 rounded-full hover:bg-gray-200 transition-all flex items-center shadow-lg">
+                    <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
+                    New Verification
+                </button>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            <div class="stats-card">
+                <p class="text-gray-500 text-sm mb-1">Total Verifications</p>
+                <h3 class="text-2xl font-bold text-white">{{ current_user.kyc_requests|length }}</h3>
+            </div>
+            <div class="stats-card">
+                <p class="text-gray-500 text-sm mb-1">Active Assets</p>
+                <h3 class="text-2xl font-bold text-white">2</h3>
+            </div>
+            <div class="stats-card">
+                <p class="text-gray-500 text-sm mb-1">Safety Score</p>
+                <h3 class="text-2xl font-bold text-green-500">98%</h3>
+            </div>
+            <div class="stats-card">
+                <p class="text-gray-500 text-sm mb-1">Last Activity</p>
+                <h3 class="text-xl font-bold text-white">2 Hours ago</h3>
+            </div>
+        </div>
+
+        <!-- Recent Activity Table -->
+        <div class="ng-glass-card overflow-hidden shadow-2xl">
+
+            <div class="p-6 border-b border-[#222] flex items-center justify-between">
+                <h2 class="text-xl font-bold text-white">Recent verifications</h2>
+                <button class="text-sm text-gray-500 hover:text-white transition-colors">View All</button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Document Type</th>
+                            <th>Status</th>
+                            <th>Requested By</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-white">
+                        {% for req in current_user.kyc_requests[:5] %}
+                        <tr>
+                            <td>
+                                <div class="flex items-center">
+                                    <i data-lucide="file-text" class="w-4 h-4 mr-3 text-gray-500"></i>
+                                    {{ req.document_type|replace('_', ' ')|title }}
+                                </div>
+                            </td>
+                            <td><span class="badge badge-{{ req.status }}">{{ req.status }}</span></td>
+                            <td>{{ req.organization.name if req.organization else 'Self' }}</td>
+                            <td class="text-gray-500 text-sm">{{ req.created_at.strftime('%b %d, %Y') }}</td>
+                            <td>
+                                <button class="p-2 hover:bg-gray-800 rounded-lg transition-colors text-gray-400 hover:text-white">
+                                    <i data-lucide="more-horizontal" class="w-5 h-5"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="py-20 text-center">
+                                <i data-lucide="shield-alert" class="w-12 h-12 mx-auto mb-4 text-gray-600"></i>
+                                <p class="text-gray-500">No verification history found.</p>
+                                <button class="mt-4 text-primary font-bold hover:underline">Start your first verification</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Animation for stats
+    document.querySelectorAll('.stats-card').forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+            card.style.transition = 'all 0.5s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, 100 + (index * 100));
+    });
+</script>
 {% endblock %}

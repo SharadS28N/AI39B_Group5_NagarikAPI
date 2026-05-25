@@ -1,19 +1,16 @@
 import os
-import uuid
 
-from flask import Flask, render_template
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
+from flask_migrate import Migrate
 from sqlalchemy.engine import make_url
 import pymysql
 from config import Config
 
 db = SQLAlchemy()
-# Lazily import Flask-Migrate at runtime; some environments may
-# block or be slow when scanning importlib metadata (alembic).
-# Allow skipping migration integration by setting DISABLE_MIGRATE=1.
-migrate = None
+migrate = Migrate()
 bcrypt = Bcrypt()
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
@@ -95,19 +92,7 @@ def create_app():
             app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {}
 
     db.init_app(app)
-
-    # Initialize Flask-Migrate only when available and not explicitly disabled.
-    disable_migrate = os.getenv('DISABLE_MIGRATE', '').strip().lower() in {'1', 'true', 'yes', 'on'}
-    if not disable_migrate:
-        try:
-            from flask_migrate import Migrate as _Migrate
-
-            # create a local Migrate instance and initialize it
-            global migrate
-            migrate = _Migrate()
-            migrate.init_app(app, db)
-        except Exception:
-            migrate = None
+    migrate.init_app(app, db)
     bcrypt.init_app(app)
     login_manager.init_app(app)
 
@@ -118,16 +103,6 @@ def create_app():
     
     app.register_blueprint(main)
     app.register_blueprint(auth)
-
-    @app.errorhandler(404)
-    def not_found_error(error):
-        return render_template('errors/404.html'), 404
-
-    @app.errorhandler(500)
-    def internal_error(error):
-        request_id = str(uuid.uuid4())[:8]
-        app.logger.exception('Unhandled server error [%s]: %s', request_id, error)
-        return render_template('errors/500.html', request_id=request_id), 500
 
     @login_manager.user_loader
     def load_user(user_id):
