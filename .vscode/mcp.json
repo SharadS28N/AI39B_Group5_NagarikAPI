@@ -1,0 +1,68 @@
+{
+  "inputs": [
+    {
+      "type": "promptString",
+      "id": "github_token",
+      "description": "GitHub Personal Access Token",
+      "password": true
+    },
+    {
+      "type": "promptString",
+      "id": "postgres_connection",
+      "description": "PostgreSQL connection string (if your backend uses a DB)",
+      "password": true
+    }
+  ],
+  "servers": {
+    "GitHub": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "GITHUB_PERSONAL_ACCESS_TOKEN",
+        "ghcr.io/github/github-mcp-server"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${input:github_token}"
+      }
+    },
+    "Filesystem": {
+      "command": "npx",
+      "args": [
+        "@modelcontextprotocol/server-filesystem",
+        "."
+      ]
+    },
+    "Fetch": {
+      "command": "npx",
+      "args": [
+        "@modelcontextprotocol/server-fetch"
+      ]
+    },
+    "Terminal": {
+      "command": "npx",
+      "args": [
+        "@modelcontextprotocol/server-terminal"
+      ]
+    },
+    "PostgreSQL": {
+      "command": "npx",
+      "args": [
+        "@modelcontextprotocol/server-postgres",
+        "${input:postgres_connection}"
+      ]
+    },
+	"Playwright": {
+	  "command": "npx",
+	  "args": [
+	    "@playwright/mcp@latest"
+  	],
+  	"env": {
+    "PLAYWRIGHT_BROWSERS_PATH": "0",
+    "BROWSER_PATH": "C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe"
+  		}
+	}
+  }
+}

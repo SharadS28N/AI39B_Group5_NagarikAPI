@@ -1,20 +1,146 @@
-{% extends 'pages/base.html' %}
+{% extends 'layouts/base.html' %}
 
-{% block title %}Admin Dashboard | NagarikAPI{% endblock %}
+{% block title %}Admin Control | NagarikAPI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-container {
+        padding-top: 120px;
+        min-height: 100vh;
+        background: #050505;
+    }
+    .card-accent {
+        position: relative;
+        overflow: hidden;
+    }
+    .card-accent::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, var(--color-primary, #8b5cf6), transparent);
+    }
+    .btn-action {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: white;
+    }
+    .btn-action:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<section class="panel">
-    <h1>Admin dashboard</h1>
-    <p>Platform-level metrics across users, companies, and KYC requests.</p>
-</section>
-<section class="panel">
-    <h2>Key metrics</h2>
-    <table class="table" aria-label="Admin stats">
-        <tbody>
-            <tr><th>Total users</th><td>{{ stats.total_users }}</td></tr>
-            <tr><th>Total companies</th><td>{{ stats.total_companies }}</td></tr>
-            <tr><th>Total requests</th><td>{{ stats.total_requests }}</td></tr>
-        </tbody>
-    </table>
-</section>
+<div class="admin-container px-6">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex items-center space-x-3 mb-8">
+            <div class="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+                <i data-lucide="shield-check" class="text-primary w-6 h-6"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-white tracking-tight">System Oversight</h1>
+        </div>
+
+        <!-- Global Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div class="bg-[#111] border border-[#222] rounded-2xl p-6 card-accent">
+                <p class="text-gray-500 text-sm font-medium mb-2 uppercase tracking-wider">Active Users</p>
+                <div class="flex items-end justify-between">
+                    <h2 class="text-4xl font-bold text-white">{{ stats.total_users }}</h2>
+                    <span class="text-green-500 text-sm font-medium mb-1">+12% this week</span>
+                </div>
+            </div>
+            <div class="bg-[#111] border border-[#222] rounded-2xl p-6 card-accent">
+                <p class="text-gray-500 text-sm font-medium mb-2 uppercase tracking-wider">Registered Companies</p>
+                <div class="flex items-end justify-between">
+                    <h2 class="text-4xl font-bold text-white">{{ stats.total_companies }}</h2>
+                    <span class="text-primary text-sm font-medium mb-1">4 pending approval</span>
+                </div>
+            </div>
+            <div class="bg-[#111] border border-[#222] rounded-2xl p-6 card-accent">
+                <p class="text-gray-500 text-sm font-medium mb-2 uppercase tracking-wider">Total Requests</p>
+                <div class="flex items-end justify-between">
+                    <h2 class="text-4xl font-bold text-white">{{ stats.total_requests }}</h2>
+                    <span class="text-gray-500 text-sm font-medium mb-1">Avg 1.2s per KYC</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Systems Status -->
+            <div class="lg:col-span-2 space-y-6">
+                <div class="bg-[#0a0a0a] border border-[#222] rounded-2xl p-8">
+                    <div class="flex items-center justify-between mb-8">
+                        <h3 class="text-xl font-bold text-white">System Reliability</h3>
+                        <span class="flex items-center text-green-500 text-sm">
+                            <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse mr-2"></span>
+                            All systems operational
+                        </span>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-4 bg-white/5 rounded-xl">
+                            <span class="text-gray-300">OCR Engine Cluster</span>
+                            <span class="text-white font-mono">99.98%</span>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-white/5 rounded-xl">
+                            <span class="text-gray-300">Identity Graph API</span>
+                            <span class="text-white font-mono">99.95%</span>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-white/5 rounded-xl">
+                            <span class="text-gray-300">Fraud Detection Matrix</span>
+                            <span class="text-white font-mono">100%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-[#0a0a0a] border border-[#222] rounded-2xl p-8">
+                    <h3 class="text-xl font-bold text-white mb-6">Recent System Logs</h3>
+                    <div class="space-y-4 font-mono text-xs text-gray-400">
+                        <p class="border-l-2 border-primary pl-4 py-1 bg-primary/5"><span class="text-gray-600">[18:24:12]</span> Auth Service: Global session flush completed.</p>
+                        <p class="border-l-2 border-gray-800 pl-4 py-1"><span class="text-gray-600">[18:20:05]</span> KYC Engine: Processed ID #9482 for Bank of Nepal.</p>
+                        <p class="border-l-2 border-gray-800 pl-4 py-1"><span class="text-gray-600">[18:15:30]</span> API: New Endpoint registration from 'FintechFlow Inc'.</p>
+                        <p class="border-l-2 border-red-900 pl-4 py-1 bg-red-900/5"><span class="text-gray-600">[18:10:12]</span> Security: Blocked 45 requests from unauthorized IP range.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="space-y-6">
+                <div class="bg-[#111] border border-[#222] rounded-2xl p-6">
+                    <h3 class="text-lg font-bold text-white mb-4">Quick Management</h3>
+                    <div class="grid grid-cols-1 gap-3">
+                        <button class="btn-action w-full py-3 px-4 rounded-xl flex items-center justify-between transition-all">
+                            <span>User List</span>
+                            <i data-lucide="users" class="w-4 h-4"></i>
+                        </button>
+                        <button class="btn-action w-full py-3 px-4 rounded-xl flex items-center justify-between transition-all">
+                            <span>Review KYC Queue</span>
+                            <i data-lucide="clipboard-list" class="w-4 h-4"></i>
+                        </button>
+                        <button class="btn-action w-full py-3 px-4 rounded-xl flex items-center justify-between transition-all">
+                            <span>Key Management</span>
+                            <i data-lucide="key" class="w-4 h-4"></i>
+                        </button>
+                        <button class="btn-action w-full py-3 px-4 rounded-xl flex items-center justify-between transition-all text-red-500 hover:bg-red-500/10 hover:border-red-500/20">
+                            <span>Emergency Shutdown</span>
+                            <i data-lucide="power" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-[#111] border border-[#222] rounded-2xl p-6 text-center">
+                    <div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="layout-dashboard" class="text-primary w-8 h-8"></i>
+                    </div>
+                    <h4 class="text-white font-bold mb-2">Advanced Analytics</h4>
+                    <p class="text-gray-500 text-xs mb-4">Connect to Grafana or Datadog for deep system visibility.</p>
+                    <button class="text-primary text-sm font-bold hover:underline">Open External Metrics</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

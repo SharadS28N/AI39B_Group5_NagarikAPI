@@ -1,23 +1,17 @@
-{% extends 'pages/base.html' %}
+{# Home Page Template #}
+{% extends 'layouts/base.html' %}
 
-{% block title %}NagarikAPI | Smart KYC Verification{% endblock %}
+{% block title %}Nagarik API | Premium Identity Onboarding{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/hero.css') }}" />
+{% endblock %}
 
 {% block content %}
-<section class="panel">
-    <p style="text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.75;">KYC Infrastructure</p>
-    <h1>Fast identity verification for banking and fintech teams</h1>
-    <p>Automate document checks, OCR extraction, and compliance-ready audit trails through one secure API layer.</p>
-    <div class="actions">
-        <a class="ng-btn ng-btn--primary" href="{{ url_for('main.docs') }}">Read docs</a>
-        <a class="ng-btn ng-btn--ghost" href="{{ url_for('main.contact') }}">Book a demo</a>
-    </div>
-</section>
-<section class="panel">
-    <h2>Platform at a glance</h2>
-    <ul>
-        <li>Document OCR for national IDs and passports</li>
-        <li>Rule-based data validation with confidence scoring</li>
-        <li>Built-in review queue and compliance logs</li>
-    </ul>
-</section>
+  {% include 'components/hero/hero-section.html' %}
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{{ url_for('static', filename='js/components/hero.js') }}" defer></script>
+  <script type="module" src="{{ url_for('static', filename='js/components/react-island.js') }}"></script>
 {% endblock %}

@@ -1,0 +1,291 @@
+<section class="ng-hero" aria-labelledby="hero-title">
+  <div class="ng-wrap" style="flex:1; display:flex; flex-direction:column;">
+    <div class="ng-hero-grid">
+
+      <div class="ng-hero__heading" data-animate style="--reveal-delay:0ms">
+
+        <h1 id="hero-title">
+          Stop fraud.<br>
+          <span class="gradient-word">Onboard anyone.</span>
+        </h1>
+
+        <p>
+          NagarikAPI delivers real-time identity verification with 99.9% accuracy — so you can approve more genuine
+          users, reject bad actors instantly, and stay compliant without slowing down.
+        </p>
+
+        <div class="ng-hero__cta">
+          <a href="{{ url_for('main.contact') }}" class="ng-btn ng-btn--primary">
+            Start verifying
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </a>
+          <a href="{{ url_for('main.docs') }}" class="ng-btn ng-btn--ghost">View the docs</a>
+        </div>
+
+        <div class="ng-proof-row" aria-label="Platform metrics">
+          <span><strong>99.9%</strong> accuracy rate</span>
+          <span class="ng-proof-divider" aria-hidden="true"></span>
+          <span><strong>&lt; 8s</strong> avg. verification</span>
+          <span class="ng-proof-divider" aria-hidden="true"></span>
+          <span><strong>Zero</strong> infra to manage</span>
+        </div>
+
+        <div class="ng-trust-strip" aria-label="Trusted by teams at">
+          <span class="ng-trust-label">Trusted by teams at</span>
+          <div class="ng-trust-logos">
+            <span>Fintech Co.</span>
+            <span>NovaPay</span>
+            <span>SwiftKYC</span>
+            <span>OpenBank</span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="ng-hero__visual" aria-hidden="true" data-animate style="--reveal-delay:100ms">
+        <div class="glow-effect"></div>
+        <img src="/static/img/hero-side.png" alt="Identity verification architecture" class="hero-illustration"
+          loading="eager" decoding="async" />
+      </div>
+
+    </div>
+  </div>
+
+  <div class="ng-logo-rail" aria-label="Platform capabilities">
+    <div class="ng-logo-rail__inner">
+      <span>Document verification</span>
+      <span>Liveness detection</span>
+      <span>AML screening</span>
+      <span>Risk scoring</span>
+      <span>Fraud signals</span>
+      <span>Compliance reports</span>
+      <span>API-first</span>
+      <span>Audit trails</span>
+      <!-- Duplicate for marquee animation -->
+      <span>Document verification</span>
+      <span>Liveness detection</span>
+      <span>AML screening</span>
+      <span>Risk scoring</span>
+      <span>Fraud signals</span>
+      <span>Compliance reports</span>
+      <span>API-first</span>
+      <span>Audit trails</span>
+    </div>
+  </div>
+</section>
+
+<section class="ng-numbers-strip" aria-label="Platform scale">
+  <div class="ng-wrap">
+    <div class="ng-numbers-grid">
+      <div class="ng-number-item" data-animate>
+        <strong>99.9%</strong>
+        <span>Accuracy rate across all verification types</span>
+      </div>
+      <div class="ng-number-item" data-animate style="--reveal-delay:60ms">
+        <strong>&lt; 8s</strong>
+        <span>Average end‑to‑end verification time</span>
+      </div>
+      <div class="ng-number-item" data-animate style="--reveal-delay:120ms">
+        <strong>3×</strong>
+        <span>Higher approval rate vs. manual review</span>
+      </div>
+      <div class="ng-number-item" data-animate style="--reveal-delay:180ms">
+        <strong>0</strong>
+        <span>Infrastructure managed by your team</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="ng-showcase" id="features">
+  <div class="ng-wrap">
+    <div class="ng-showcase__head">
+      <h2>Everything you need. Nothing you don't.</h2>
+      <p>One platform to verify identities, detect fraud, and meet compliance — without stitching together five vendors.</p>
+    </div>
+    <div class="ng-showcase__grid">
+      <article class="ng-showcase-card" data-animate>
+        <i data-lucide="scan-face"></i>
+        <h3>Document + liveness</h3>
+        <p>Verify government IDs and confirm the person is present — all in a single guided session.</p>
+      </article>
+      <article class="ng-showcase-card" data-animate>
+        <i data-lucide="activity"></i>
+        <h3>Real-time risk scoring</h3>
+        <p>Synthesize device signals, behavior, and identity data into one risk score, instantly.</p>
+      </article>
+      <article class="ng-showcase-card" data-animate>
+        <i data-lucide="file-check-2"></i>
+        <h3>Compliance-ready</h3>
+        <p>Built-in AML and KYC controls with audit-ready logs, policy enforcement, and case governance.</p>
+      </article>
+      <article class="ng-showcase-card" data-animate>
+        <i data-lucide="plug-2"></i>
+        <h3>API-first integration</h3>
+        <p>Drop-in REST APIs and webhooks that fit any stack — go live in hours, not months.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="ng-blocks" id="how-it-works">
+  <div class="ng-wrap">
+    <h2>From signup to verified in seconds</h2>
+    <p>A seamless verification journey that keeps legitimate users moving and bad actors out.</p>
+    <div class="ng-card-grid">
+      <article class="ng-card" data-animate>
+        <div class="ng-card__media"><span class="step-number">01</span></div>
+        <h3>User initiates</h3>
+        <p>A clean, guided capture flow collects the document and selfie with real-time feedback.</p>
+      </article>
+      <article class="ng-card" data-animate>
+        <div class="ng-card__media"><span class="step-number">02</span></div>
+        <h3>AI runs checks</h3>
+        <p>Liveness, document authenticity, and data extraction happen in parallel — results in under 8 seconds.</p>
+      </article>
+      <article class="ng-card" data-animate>
+        <div class="ng-card__media"><span class="step-number">03</span></div>
+        <h3>Risk is scored</h3>
+        <p>A composite risk score is generated from identity signals, device context, and behavioral analysis.</p>
+      </article>
+      <article class="ng-card" data-animate>
+        <div class="ng-card__media"><span class="step-number">04</span></div>
+        <h3>Decision is made</h3>
+        <p>Auto-approve, flag for review, or instantly reject — with full audit trail and detailed rationale.</p>
+      </article>
+      <article class="ng-card" data-animate>
+        <div class="ng-card__media"><span class="step-number">05</span></div>
+        <h3>Ops team reviews</h3>
+        <p>Analysts get a structured case view with all evidence pre-assembled — one click to resolve.</p>
+      </article>
+      <article class="ng-card" data-animate>
+        <div class="ng-card__media"><span class="step-number">06</span></div>
+        <h3>You stay compliant</h3>
+        <p>Every verification is logged, timestamped, and traceable for regulatory audit at any time.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="ng-dark-band" id="security">
+  <div class="ng-wrap">
+    <h2>Enterprise-grade security. Zero compromise.</h2>
+    <p>Built from the ground up for regulated industries — every control you need, none you'll outgrow.</p>
+    <div class="ng-badge-row" aria-label="Security and compliance capabilities">
+      <span class="ng-badge">Encrypted data paths</span>
+      <span class="ng-badge">SOC 2 aligned</span>
+      <span class="ng-badge">AML / KYC controls</span>
+      <span class="ng-badge">Immutable audit logs</span>
+      <span class="ng-badge">RBAC access controls</span>
+      <span class="ng-badge">Real-time monitoring</span>
+      <span class="ng-badge">Policy enforcement</span>
+      <span class="ng-badge">99.95% uptime SLA</span>
+    </div>
+  </div>
+</section>
+
+<section class="ng-testimonials" id="reviews">
+  <div class="ng-wrap">
+    <div class="ng-showcase__head">
+      <h2>Trusted by digital teams across Nepal</h2>
+      <p>Here is why forward-thinking companies choose NagarikAPI for their identity infrastructure.</p>
+    </div>
+    
+    <div class="ng-testimonials__grid">
+      <div class="ng-review-card" data-animate>
+        <div class="ng-review-stars">
+          <i data-lucide="star"></i>
+          <i data-lucide="star"></i>
+          <i data-lucide="star"></i>
+          <i data-lucide="star"></i>
+          <i data-lucide="star"></i>
+        </div>
+        <p>"The OCR accuracy for Nepali citizenship cards is unmatched. Integration took us less than a day."</p>
+        <div class="ng-review-author">Aayush Shrestha</div>
+      </div>
+
+      <div class="ng-review-card" data-animate style="--reveal-delay:60ms">
+        <div class="ng-review-stars">
+          <i data-lucide="star"></i>
+          <i data-lucide="star"></i>
+          <i data-lucide="star"></i>
+          <i data-lucide="star"></i>
+          <i data-lucide="star"></i>
+        </div>
+        <p>"Stunning UI and very fast verification. Our user drop-off rate decreased by 40% in our first month."</p>
+        <div class="ng-review-author">Saraswati Thapa</div>
+      </div>
+
+      <div class="ng-review-card" data-animate style="--reveal-delay:120ms">
+        <div class="ng-review-stars">
+          <i data-lucide="star"></i>
+          <i data-lucide="star"></i>
+          <i data-lucide="star"></i>
+          <i data-lucide="star"></i>
+          <i data-lucide="star"></i>
+        </div>
+        <p>"Finally a reliable KYC solution for Nepal. The API documentation is crystal clear and easy to follow."</p>
+        <div class="ng-review-author">Rohan Das</div>
+      </div>
+
+      <div class="ng-review-card" data-animate style="--reveal-delay:180ms">
+        <div class="ng-review-stars">
+          <i data-lucide="star"></i>
+          <i data-lucide="star"></i>
+          <i data-lucide="star"></i>
+          <i data-lucide="star"></i>
+          <i data-lucide="star"></i>
+        </div>
+        <p>"Technical support is top-notch. They helped us navigate NRB compliance requirements with ease."</p>
+        <div class="ng-review-author">Deepa Rai</div>
+      </div>
+
+      <div class="ng-review-card" data-animate style="--reveal-delay:240ms">
+        <div class="ng-review-stars">
+          <i data-lucide="star"></i>
+          <i data-lucide="star"></i>
+          <i data-lucide="star"></i>
+          <i data-lucide="star"></i>
+          <i data-lucide="star"></i>
+        </div>
+        <p>"Liveness detection works perfectly even in low light. Highly recommended for any fintech startup."</p>
+        <div class="ng-review-author">Bibek Neupane</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="ng-island" id="react-island">
+  <div class="ng-wrap">
+    <h2>Interactive, composable, and ready to ship</h2>
+    <p>Key touchpoints use React, Radix UI, and Framer Motion for high-fidelity interactions.</p>
+    <div id="ng-react-island" data-animate></div>
+    <noscript>
+      <p class="ng-island__noscript">Enable JavaScript to view the interactive demo.</p>
+    </noscript>
+  </div>
+</section>
+
+<section class="ng-company" id="why">
+  <div class="ng-wrap">
+    <h2>Why identity teams choose NagarikAPI</h2>
+    <p>We built the platform we wished existed — one that makes your compliance team, product team, and customers all happy at once.</p>
+    <div class="ng-company__grid">
+      <article>
+        <h3>Higher conversion</h3>
+        <p>Guided UX and instant decisions keep legitimate users from abandoning verification halfway through.</p>
+      </article>
+      <article>
+        <h3>Fewer false positives</h3>
+        <p>Composite risk scoring reduces the noise your ops team wades through — so they focus on real threats.</p>
+      </article>
+      <article>
+        <h3>Faster compliance</h3>
+        <p>Pre-built KYC and AML workflows mean you meet regulatory requirements without building them from scratch.</p>
+      </article>
+    </div>
+  </div>
+</section>
