@@ -1,0 +1,37 @@
+{% extends 'pages/base.html' %}
+
+{% block title %}Company Dashboard | NagarikAPI{% endblock %}
+
+{% block content %}
+<section class="panel">
+    <h1>Company dashboard</h1>
+    <p>Manage verifications for your organization and monitor request status.</p>
+</section>
+<section class="panel">
+    <h2>Organization</h2>
+    <p><strong>Name:</strong> {{ company.name if company else 'Not assigned' }}</p>
+</section>
+<section class="panel">
+    <h2>Recent requests</h2>
+    {% if requests %}
+    <table class="table" aria-label="Company requests">
+        <thead>
+            <tr><th>ID</th><th>User ID</th><th>Document</th><th>Status</th><th>Created</th></tr>
+        </thead>
+        <tbody>
+            {% for request_item in requests %}
+            <tr>
+                <td>{{ request_item.id }}</td>
+                <td>{{ request_item.user_id }}</td>
+                <td>{{ request_item.document_type }}</td>
+                <td>{{ request_item.status }}</td>
+                <td>{{ request_item.created_at.strftime('%Y-%m-%d') if request_item.created_at else 'N/A' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No requests found for this company yet.</p>
+    {% endif %}
+</section>
+{% endblock %}
