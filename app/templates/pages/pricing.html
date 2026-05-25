@@ -1,0 +1,23 @@
+{% extends 'pages/base.html' %}
+
+{% block title %}Pricing | NagarikAPI{% endblock %}
+
+{% block content %}
+<section class="panel">
+    <h1>Pricing</h1>
+    <p>Transparent pricing designed for pilots, growing fintech products, and enterprise deployments.</p>
+</section>
+<section class="panel">
+    <h2>Plans</h2>
+    <table class="table" aria-label="Pricing plans">
+        <thead>
+            <tr><th>Plan</th><th>Monthly Checks</th><th>Support</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>Starter</td><td>Up to 5,000</td><td>Email</td></tr>
+            <tr><td>Growth</td><td>Up to 50,000</td><td>Priority</td></tr>
+            <tr><td>Enterprise</td><td>Custom</td><td>Dedicated</td></tr>
+        </tbody>
+    </table>
+</section>
+{% endblock %}
