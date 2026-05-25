@@ -1,6 +1,7 @@
 import os
+import uuid
 
-from flask import Flask
+from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
@@ -117,6 +118,16 @@ def create_app():
     
     app.register_blueprint(main)
     app.register_blueprint(auth)
+
+    @app.errorhandler(404)
+    def not_found_error(error):
+        return render_template('errors/404.html'), 404
+
+    @app.errorhandler(500)
+    def internal_error(error):
+        request_id = str(uuid.uuid4())[:8]
+        app.logger.exception('Unhandled server error [%s]: %s', request_id, error)
+        return render_template('errors/500.html', request_id=request_id), 500
 
     @login_manager.user_loader
     def load_user(user_id):

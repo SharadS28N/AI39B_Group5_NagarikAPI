@@ -75,5 +75,5 @@ def demo_request():
         if not email:
             return jsonify({'error': 'Email is required'}), 400
         return jsonify({'success': True, 'message': 'Request received'}), 200
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    except Exception:
+        return jsonify({'error': 'Unable to process request at the moment'}), 500

@@ -1,0 +1,18 @@
+{% extends 'pages/base.html' %}
+
+{% block title %}User Dashboard | NagarikAPI{% endblock %}
+
+{% block content %}
+<section class="panel">
+    <h1>User dashboard</h1>
+    <p>Welcome, {{ current_user.full_name }}. Track your KYC request status and history here.</p>
+</section>
+<section class="panel">
+    <h2>Account details</h2>
+    <ul>
+        <li>Email: {{ current_user.email }}</li>
+        <li>Role: {{ current_user.role }}</li>
+        <li>Member since: {{ current_user.created_at.strftime('%Y-%m-%d') if current_user.created_at else 'N/A' }}</li>
+    </ul>
+</section>
+{% endblock %}
