@@ -193,7 +193,19 @@ python run.py
     <td align="center">
       <a href="https://github.com/sushant-malla">
         <img src="https://github.com/sushant-malla.png" width="100px;" style="border-radius:50%;" alt="sushant-malla"/><br />
-        <sub><b>Mingmar Lama</b></sub>
+        <sub><b>Sushant Malla</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/bimit-shrestha">
+        <img src="https://github.com/bimit-shrestha.png" width="100px;" style="border-radius:50%;" alt="bimit-shrestha"/><br />
+        <sub><b>Bimit Shrestha</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/visionpahari16-art">
+        <img src="https://github.com/visionpahari16-art.png" width="100px;" style="border-radius:50%;" alt="visionpahari16-art"/><br />
+        <sub><b>Vision Pahari</b></sub>
       </a>
     </td>
     <td align="center">
