@@ -1,21 +1,206 @@
-{% extends 'pages/base.html' %}
+{% extends 'layouts/base.html' %}
 
-{% block title %}Contact | NagarikAPI{% endblock %}
+{% block title %}Contact Sales & Support | NagarikAPI{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/hero.css') }}">
+<style>
+  .ng-contact-section {
+    padding: 160px 0 100px;
+    background: #050505;
+  }
+
+  .ng-contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.25fr;
+    gap: 100px;
+    align-items: start;
+  }
+
+  .ng-contact-info h1 {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 2rem;
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+  }
+
+  .ng-contact-info p {
+    font-size: 1.125rem;
+    color: rgba(255, 255, 255, 0.45);
+    line-height: 1.6;
+    margin-bottom: 3rem;
+  }
+
+  .ng-contact-method {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+  }
+
+  .ng-contact-method .icon-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #8b5cf6;
+    flex-shrink: 0;
+  }
+
+  .ng-contact-method h4 {
+    margin: 0;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.25);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .ng-contact-method p {
+    margin: 0;
+    font-size: 1rem;
+    color: #ffffff;
+  }
+
+  /* Form Styling */
+  .ng-contact-form {
+    background: rgba(255, 255, 255, 0.015);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 32px;
+    padding: 3rem;
+  }
+
+  .ng-form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .ng-form-group label {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.45);
+    margin-bottom: 0.5rem;
+  }
+
+  .ng-form-group input, 
+  .ng-form-group select, 
+  .ng-form-group textarea {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 0.875rem 1rem;
+    color: #ffffff;
+    font-size: 0.9375rem;
+    outline: none;
+    transition: all 0.2s ease;
+  }
+
+  .ng-form-group input:focus, 
+  .ng-form-group select:focus, 
+  .ng-form-group textarea:focus {
+    border-color: rgba(139, 92, 246, 0.5);
+    background: rgba(139, 92, 246, 0.03);
+  }
+
+  .ng-contact-form .ng-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 1rem;
+    font-size: 1rem;
+  }
+
+  @media (max-width: 900px) {
+    .ng-contact-grid {
+      grid-template-columns: 1fr;
+      gap: 60px;
+    }
+    .ng-contact-form {
+      padding: 2rem;
+    }
+  }
+</style>
+{% endblock %}
 
 {% block content %}
-<section class="panel">
-    <h1>Contact</h1>
-    <p>Tell us about your verification needs and we will help design the right onboarding flow.</p>
-</section>
-<section class="panel">
-    <form method="post" action="{{ url_for('main.demo_request') }}">
-        <div class="field">
-            <label for="email">Work email</label>
-            <input id="email" name="email" type="email" required>
+<main class="ng-contact-section">
+  <div class="ng-wrap">
+    <div class="ng-contact-grid">
+      
+      <!-- Info Side -->
+      <div class="ng-contact-info" data-animate>
+        <h1>Let's build the future of trust.</h1>
+        <p>
+          Whether you're a fintech startup, a commercial bank, or a developer with a vision, 
+          our team is here to help you navigate the identity landscape.
+        </p>
+
+        <div class="ng-contact-methods">
+          <div class="ng-contact-method">
+            <div class="icon-box"><i data-lucide="mail"></i></div>
+            <div>
+              <h4>Email Us</h4>
+              <p>hello@nagarikapi.com</p>
+            </div>
+          </div>
+          <div class="ng-contact-method">
+            <div class="icon-box"><i data-lucide="map-pin"></i></div>
+            <div>
+              <h4>Visit Us</h4>
+              <p>Kathmandu, Nepal (Virtual HQ)</p>
+            </div>
+          </div>
+          <div class="ng-contact-method">
+            <div class="icon-box"><i data-lucide="message-square"></i></div>
+            <div>
+              <h4>Sales Inquiry</h4>
+              <p>Work with our solutions team</p>
+            </div>
+          </div>
         </div>
-        <div class="actions">
-            <button class="ng-btn ng-btn--primary" type="submit">Request demo</button>
-        </div>
-    </form>
-</section>
+      </div>
+
+      <!-- Form Side -->
+      <div class="ng-contact-form" data-animate style="--reveal-delay: 100ms">
+        <form>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="ng-form-group">
+              <label>First name</label>
+              <input type="text" placeholder="John">
+            </div>
+            <div class="ng-form-group">
+              <label>Last name</label>
+              <input type="text" placeholder="Doe">
+            </div>
+          </div>
+          <div class="ng-form-group">
+            <label>Work email</label>
+            <input type="email" placeholder="john@company.com">
+          </div>
+          <div class="ng-form-group">
+            <label>Subject</label>
+            <select>
+              <option>General Inquiry</option>
+              <option>Partnership</option>
+              <option>Technical Support</option>
+              <option>Enterprise Sales</option>
+            </select>
+          </div>
+          <div class="ng-form-group">
+            <label>How can we help?</label>
+            <textarea rows="4" placeholder="Tell us about your project..."></textarea>
+          </div>
+          <button type="submit" class="ng-btn ng-btn--primary">Send message</button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</main>
 {% endblock %}

@@ -1,18 +1,160 @@
-{% extends 'pages/base.html' %}
+{% extends 'layouts/base.html' %}
 
-{% block title %}Blog | NagarikAPI{% endblock %}
+{% block title %}Insights & Engineering | NagarikAPI{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/hero.css') }}">
+<style>
+  .ng-blog-section {
+    padding: 160px 0 100px;
+    background: #050505;
+  }
+
+  .ng-blog-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-top: 4rem;
+  }
+
+  .ng-blog-card {
+    background: rgba(255, 255, 255, 0.015);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 24px;
+    overflow: hidden;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ng-blog-card:hover {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.12);
+    transform: translateY(-4px);
+  }
+
+  .ng-blog-thumb {
+    aspect-ratio: 16/10;
+    background: #0a0a0a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .ng-blog-thumb::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
+  }
+
+  .ng-blog-thumb i {
+    position: relative;
+    z-index: 1;
+    color: #8b5cf6;
+    opacity: 0.6;
+  }
+
+  .ng-blog-body {
+    padding: 2rem;
+    flex: 1;
+  }
+
+  .ng-blog-meta {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  .ng-blog-body h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 1rem;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+  }
+
+  .ng-blog-body p {
+    font-size: 0.9375rem;
+    color: rgba(255,255,255,0.45);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  @media (max-width: 1024px) {
+    .ng-blog-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .ng-blog-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+{% endblock %}
 
 {% block content %}
-<section class="panel">
-    <h1>Blog</h1>
-    <p>Product updates, compliance insights, and engineering notes from the NagarikAPI team.</p>
-</section>
-<section class="panel">
-    <h2>Latest posts</h2>
-    <ul>
-        <li>Designing resilient OCR validation pipelines</li>
-        <li>Reducing onboarding drop-off with smarter review queues</li>
-        <li>Operational checklists for KYC incident response</li>
-    </ul>
-</section>
+<main class="ng-blog-section">
+  <div class="ng-wrap">
+    <div class="ng-showcase__head" data-animate>
+      <div class="ng-eyebrow" style="margin: 0 auto 1.5rem;">The Lab</div>
+      <h1 class="text-4xl md:text-7xl font-bold text-white mb-8 tracking-tighter">Latest insights.</h1>
+      <p class="text-gray-400 text-lg max-w-2xl mx-auto">
+        Deep dives into engineering, compliance, and the future of identity verification in Nepal.
+      </p>
+    </div>
+
+    <div class="ng-blog-grid">
+      <!-- Post 1 -->
+      <a href="#" class="ng-blog-card" data-animate style="--reveal-delay: 0ms">
+        <div class="ng-blog-thumb">
+          <i data-lucide="cpu" class="w-16 h-16"></i>
+        </div>
+        <div class="ng-blog-body">
+          <span class="ng-blog-meta">Engineering • 5 min read</span>
+          <h3>Optimizing OCR for the New National ID</h3>
+          <p>How we achieved 99% accuracy on multi-spectral document scans using neural networks.</p>
+        </div>
+      </a>
+
+      <!-- Post 2 -->
+      <a href="#" class="ng-blog-card" data-animate style="--reveal-delay: 100ms">
+        <div class="ng-blog-thumb">
+          <i data-lucide="shield-check" class="w-16 h-16" style="color: #60a5fa;"></i>
+        </div>
+        <div class="ng-blog-body">
+          <span class="ng-blog-meta" style="color: rgba(96, 165, 250, 0.4);">Compliance • 8 min read</span>
+          <h3>NRB Guidelines for Digital KYC</h3>
+          <p>A deep dive into the latest regulatory requirements for banks and digital wallets.</p>
+        </div>
+      </a>
+
+      <!-- Post 3 -->
+      <a href="#" class="ng-blog-card" data-animate style="--reveal-delay: 200ms">
+        <div class="ng-blog-thumb">
+          <i data-lucide="brain-circuit" class="w-16 h-16" style="color: #10b981;"></i>
+        </div>
+        <div class="ng-blog-body">
+          <span class="ng-blog-meta" style="color: rgba(16, 185, 129, 0.4);">Research • 4 min read</span>
+          <h3>The Future of Biometric Trust</h3>
+          <p>Why face matching is becoming the primary security layer for fintech globally.</p>
+        </div>
+      </a>
+    </div>
+
+    <!-- Pagination or Newsletter Placeholder -->
+    <div style="margin-top: 80px; text-align: center;" data-animate>
+       <p style="color: rgba(255,255,255,0.25); font-size: 0.875rem;">More articles coming soon.</p>
+    </div>
+  </div>
+</main>
 {% endblock %}
