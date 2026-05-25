@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>500 | NagarikAPI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/globals.css') }}">
+</head>
+<body>
+    <main class="container" style="min-height: 100vh; display: grid; place-items: center;">
+        <section style="max-width: 760px; text-align: center; border: 1px solid rgba(255,255,255,0.14); border-radius: 14px; padding: 2rem; background: rgba(255,255,255,0.03);">
+            <p style="opacity: 0.75; letter-spacing: 0.08em; text-transform: uppercase;">Error 500</p>
+            <h1>Unexpected server error</h1>
+            <p>Something went wrong while processing your request. Please try again in a moment.</p>
+            {% if request_id %}
+            <p style="font-size: 0.95rem; opacity: 0.8;">Reference ID: <strong>{{ request_id }}</strong></p>
+            {% endif %}
+            <p><a class="ng-btn ng-btn--primary" href="{{ url_for('main.index') }}">Return home</a></p>
+        </section>
+    </main>
+</body>
+</html>

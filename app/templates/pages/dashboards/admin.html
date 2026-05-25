@@ -1,0 +1,20 @@
+{% extends 'pages/base.html' %}
+
+{% block title %}Admin Dashboard | NagarikAPI{% endblock %}
+
+{% block content %}
+<section class="panel">
+    <h1>Admin dashboard</h1>
+    <p>Platform-level metrics across users, companies, and KYC requests.</p>
+</section>
+<section class="panel">
+    <h2>Key metrics</h2>
+    <table class="table" aria-label="Admin stats">
+        <tbody>
+            <tr><th>Total users</th><td>{{ stats.total_users }}</td></tr>
+            <tr><th>Total companies</th><td>{{ stats.total_companies }}</td></tr>
+            <tr><th>Total requests</th><td>{{ stats.total_requests }}</td></tr>
+        </tbody>
+    </table>
+</section>
+{% endblock %}

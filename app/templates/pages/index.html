@@ -1,0 +1,23 @@
+{% extends 'pages/base.html' %}
+
+{% block title %}NagarikAPI | Smart KYC Verification{% endblock %}
+
+{% block content %}
+<section class="panel">
+    <p style="text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.75;">KYC Infrastructure</p>
+    <h1>Fast identity verification for banking and fintech teams</h1>
+    <p>Automate document checks, OCR extraction, and compliance-ready audit trails through one secure API layer.</p>
+    <div class="actions">
+        <a class="ng-btn ng-btn--primary" href="{{ url_for('main.docs') }}">Read docs</a>
+        <a class="ng-btn ng-btn--ghost" href="{{ url_for('main.contact') }}">Book a demo</a>
+    </div>
+</section>
+<section class="panel">
+    <h2>Platform at a glance</h2>
+    <ul>
+        <li>Document OCR for national IDs and passports</li>
+        <li>Rule-based data validation with confidence scoring</li>
+        <li>Built-in review queue and compliance logs</li>
+    </ul>
+</section>
+{% endblock %}
