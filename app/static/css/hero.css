@@ -1,0 +1,1394 @@
+/* ============================================================
+   NagarikAPI — Identity Verification UI System
+   ============================================================ */
+
+/* ── Base ── */
+main { overflow: hidden; }
+
+body {
+  background-color: transparent;
+  background-image: url(https://resend.com/_next/image?url=%2Fstatic%2Flanding-page%2Fbghero.png&w=1080&q=75);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+
+.ng-wrap {
+  width: min(1200px, calc(100% - 3rem));
+  margin: 0 auto;
+}
+
+/* ── Buttons ── */
+.ng-btn {
+  border: 1px solid transparent;
+  border-radius: 8px;
+  min-height: 42px;
+  padding: 0 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  transition: all 180ms cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.ng-btn:hover { transform: translateY(-1px); }
+.ng-btn:active { transform: scale(0.98); }
+
+.ng-btn--primary {
+  background: #ffffff;
+  border-color: #ffffff;
+  color: #0a0a0a;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.4);
+}
+.ng-btn--primary:hover {
+  background: rgba(255,255,255,0.9);
+  box-shadow: 0 4px 16px rgba(255,255,255,0.15);
+}
+
+.ng-btn--dark {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.12);
+  color: #ffffff;
+}
+.ng-btn--dark:hover {
+  background: rgba(255,255,255,0.14);
+  border-color: rgba(255,255,255,0.2);
+}
+
+.ng-btn--ghost {
+  background: transparent;
+  border-color: rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.8);
+}
+.ng-btn--ghost:hover {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.25);
+  color: #fff;
+}
+
+.ng-btn--light {
+  background: rgba(255,255,255,0.05);
+  border-color: rgba(255,255,255,0.1);
+  color: #ffffff;
+}
+
+/* ── Navbar ── */
+.ng-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9000;
+  background: rgba(5, 5, 5, 0.7);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  transition: background 300ms ease, border-color 300ms ease;
+}
+
+.ng-navbar.scrolled {
+  background: rgba(5, 5, 5, 0.92);
+  border-bottom-color: rgba(255,255,255,0.1);
+}
+
+.ng-navbar__inner {
+  width: min(1200px, calc(100% - 3rem));
+  margin: 0 auto;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.ng-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+  flex-shrink: 0;
+}
+
+.ng-brand__mark {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+.ng-brand__mark svg {
+  display: block;
+}
+
+/* Subtle glow on hover */
+.ng-brand:hover .ng-brand__mark {
+  color: #a78bfa;
+  transition: color 200ms ease;
+}
+
+.ng-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex: 1;
+  justify-content: center;
+}
+
+.ng-nav-links a {
+  text-decoration: none;
+  color: rgba(255,255,255,0.6);
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.4rem 0.75rem;
+  border-radius: 6px;
+  transition: color 150ms ease, background 150ms ease;
+}
+
+.ng-nav-links a:hover {
+  color: #ffffff;
+  background: rgba(255,255,255,0.06);
+}
+
+.ng-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.ng-nav-login {
+  text-decoration: none;
+  color: rgba(255,255,255,0.6);
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.4rem 0.75rem;
+  border-radius: 6px;
+  transition: color 150ms ease;
+}
+.ng-nav-login:hover { color: #ffffff; }
+
+.ng-nav-toggle {
+  display: none;
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
+  border-radius: 8px;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease;
+}
+.ng-nav-toggle:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.2);
+}
+
+/* Mobile */
+.ng-mobile-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #080808;
+  z-index: 8999;
+  display: flex;
+  flex-direction: column;
+  padding: 80px 1.75rem 2rem;
+  gap: 0.25rem;
+  overflow-y: auto;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-8px);
+  transition: opacity 220ms ease, transform 220ms ease;
+}
+
+.ng-mobile-menu.is-open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.ng-mobile-menu.is-open::before {
+  content: '';
+  position: absolute;
+  top: 64px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(255,255,255,0.08);
+}
+
+.ng-mobile-menu a {
+  text-decoration: none;
+  color: rgba(255,255,255,0.75);
+  font-size: 1.25rem;
+  font-weight: 500;
+  padding: 1rem 1rem;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  transition: all 150ms ease;
+  letter-spacing: -0.01em;
+}
+.ng-mobile-menu a:hover {
+  color: #ffffff;
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.08);
+}
+
+.ng-mobile-menu__divider {
+  height: 1px;
+  background: rgba(255,255,255,0.08);
+  margin: 0.75rem 0;
+}
+
+.ng-mobile-menu__cta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.ng-mobile-cta-btn {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  background: #8b5cf6 !important;
+  color: #fff !important;
+  border-radius: 10px !important;
+  padding: 1rem 1.5rem !important;
+  font-weight: 700 !important;
+  font-size: 1rem !important;
+  text-align: center;
+  border: 1px solid rgba(139,92,246,0.5) !important;
+  transition: background 150ms ease !important;
+}
+.ng-mobile-cta-btn:hover {
+  background: #7c3aed !important;
+}
+
+/* ── Hero ── */
+.ng-hero {
+  position: relative;
+  overflow: hidden;
+  padding-top: 64px;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+.ng-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 60% -10%, rgba(139, 92, 246, 0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 80% 60%, rgba(99, 102, 241, 0.08) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.ng-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 60%, black 40%, transparent 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.ng-hero .ng-wrap { position: relative; z-index: 1; flex: 1; }
+
+.ng-hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 0;
+  min-height: calc(100svh - 64px);
+  padding: 4rem 0 3rem;
+}
+
+.ng-hero__heading {
+  max-width: 600px;
+  padding-right: 3rem;
+}
+
+.ng-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.75rem;
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  background: rgba(139, 92, 246, 0.08);
+  color: #a78bfa;
+  border-radius: 999px;
+  padding: 0.4rem 1rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.ng-eyebrow svg {
+  flex-shrink: 0;
+  color: #8b5cf6;
+}
+
+.ng-hero__heading h1 {
+  margin: 0 0 1.25rem;
+  font-size: clamp(2.5rem, 5vw, 4.25rem);
+  line-height: 1.04;
+  letter-spacing: -0.04em;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.ng-hero__heading h1 .gradient-word {
+  background: linear-gradient(135deg, #ffffff 0%, #a78bfa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.ng-hero__heading p {
+  margin: 0 0 2rem;
+  max-width: 480px;
+  color: rgba(255,255,255,0.55);
+  font-size: clamp(1rem, 1.5vw, 1.125rem);
+  line-height: 1.65;
+}
+
+.ng-hero__cta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 2.5rem;
+}
+
+.ng-demo-form {
+  display: flex;
+  align-items: stretch;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  overflow: hidden;
+  max-width: 440px;
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+.ng-demo-form:focus-within {
+  border-color: rgba(139,92,246,0.5);
+  box-shadow: 0 0 0 3px rgba(139,92,246,0.12);
+}
+
+.ng-demo-form input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 0.875rem;
+  padding: 0.75rem 1rem;
+  outline: none;
+}
+.ng-demo-form input::placeholder { color: rgba(255,255,255,0.3); }
+
+.ng-demo-form button {
+  flex-shrink: 0;
+  background: #8b5cf6;
+  border: none;
+  color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.75rem 1.25rem;
+  cursor: pointer;
+  transition: background 150ms ease;
+  white-space: nowrap;
+}
+.ng-demo-form button:hover { background: #7c3aed; }
+
+.ng-proof-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.875rem;
+  color: rgba(255,255,255,0.45);
+  font-size: 0.82rem;
+  margin-top: 1.75rem;
+}
+.ng-proof-row strong {
+  color: #ffffff;
+  font-weight: 700;
+}
+.ng-proof-divider {
+  display: inline-block;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  flex-shrink: 0;
+}
+
+.ng-hero__visual {
+  position: relative;
+  height: 100%;
+  min-height: 500px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  overflow: hidden;
+}
+
+.hero-illustration {
+  position: relative;
+  width: 110%;
+  max-width: 700px;
+  height: auto;
+  display: block;
+  mix-blend-mode: screen;
+  filter:
+    brightness(0.9)
+    contrast(1.1)
+    saturate(1.2);
+  -webkit-mask-image:
+    radial-gradient(ellipse 85% 75% at 60% 50%, black 40%, transparent 80%);
+  mask-image:
+    radial-gradient(ellipse 85% 75% at 60% 50%, black 40%, transparent 80%);
+  transform: translateX(5%);
+  z-index: 1;
+}
+
+.ng-hero__visual::before {
+  content: '';
+  position: absolute;
+  width: 70%;
+  height: 70%;
+  background: radial-gradient(circle, rgba(139,92,246,0.2) 0%, transparent 65%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-40%, -50%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.ng-hero__visual::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(to right, #050505, transparent);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.glow-effect {
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, transparent 70%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.ng-logo-rail {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  overflow: hidden;
+  padding: 1.5rem 0;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  white-space: nowrap;
+  background: linear-gradient(to right, #050505, transparent 15%, transparent 85%, #050505);
+}
+
+.ng-logo-rail span {
+  display: inline-flex;
+  align-items: center;
+  margin: 0 1rem;
+  padding: 0.4rem 1rem;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.02);
+  color: rgba(255,255,255,0.3);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.ng-logo-rail__inner {
+  display: inline-flex;
+  animation: marquee 40s linear infinite;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.ng-logo-rail:hover .ng-logo-rail__inner {
+  animation-play-state: paused;
+}
+
+/* ── Sections ── */
+.ng-showcase,
+.ng-blocks,
+.ng-privacy,
+.ng-island,
+.ng-stack,
+.ng-company,
+.ng-dark-band {
+  padding: 6rem 0;
+  background: #050505;
+}
+
+.ng-showcase__head,
+.ng-blocks > .ng-wrap > *:first-child,
+.ng-blocks > .ng-wrap > *:nth-child(2) {
+  text-align: center;
+}
+
+.ng-showcase__head h2,
+.ng-blocks h2,
+.ng-privacy h2,
+.ng-stack h2,
+.ng-island h2,
+.ng-company h2,
+.ng-dark-band h2 {
+  text-align: center;
+  margin: 0 auto 0.75rem;
+  font-size: clamp(1.75rem, 4.5vw, 2.75rem);
+  line-height: 1.2;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.03em;
+  max-width: 800px;
+  overflow-wrap: break-word;
+}
+
+.ng-showcase__head p,
+.ng-blocks > .ng-wrap > p,
+.ng-privacy > .ng-wrap > p,
+.ng-stack > .ng-wrap > p,
+.ng-island > .ng-wrap > p,
+.ng-company > .ng-wrap > p,
+.ng-dark-band > .ng-wrap > p {
+  margin: 0 auto 0;
+  text-align: center;
+  max-width: 560px;
+  color: rgba(255,255,255,0.5);
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+/* ── Cards ── */
+.ng-showcase__grid {
+  margin-top: 3rem;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.06);
+}
+
+.ng-showcase-card {
+  background: #050505;
+  padding: 1.75rem 1.5rem;
+  transition: background 200ms ease;
+}
+.ng-showcase-card:hover { background: rgba(255,255,255,0.02); }
+
+.ng-showcase-card i {
+  width: 20px;
+  height: 20px;
+  color: #8b5cf6;
+  margin-bottom: 1rem;
+}
+
+.ng-showcase-card h3 {
+  margin: 0 0 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+.ng-showcase-card p {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: rgba(255,255,255,0.45);
+  text-align: left;
+}
+
+/* ── Steps / Workflow Cards ── */
+.ng-card-grid {
+  margin-top: 3rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.ng-card {
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.015);
+  padding: 1.25rem;
+  transition: border-color 200ms ease, background 200ms ease, transform 200ms ease;
+}
+.ng-card:hover {
+  border-color: rgba(139,92,246,0.25);
+  background: rgba(139,92,246,0.03);
+  transform: translateY(-2px);
+}
+
+.ng-card__media {
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.02);
+  margin-bottom: 1rem;
+}
+
+.step-number {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.2);
+  font-variant-numeric: tabular-nums;
+}
+
+.ng-card h3 {
+  margin: 0 0 0.35rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.ng-card p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.6;
+}
+
+/* ── Badge Row ── */
+.ng-badge-row {
+  margin: 2.5rem auto 0;
+  width: min(700px, 100%);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+.ng-badge {
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 999px;
+  padding: 0.45rem 1rem;
+  background: rgba(255,255,255,0.03);
+  color: rgba(255,255,255,0.65);
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: all 150ms ease;
+}
+.ng-badge:hover {
+  border-color: rgba(139,92,246,0.3);
+  color: #a78bfa;
+  background: rgba(139,92,246,0.05);
+}
+
+/* ── Price Card ── */
+.ng-price-card {
+  margin: 2.5rem auto 0;
+  width: min(680px, 100%);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  background: rgba(255,255,255,0.02);
+  padding: 1.5rem;
+  backdrop-filter: blur(10px);
+}
+
+.ng-price-card p {
+  margin: 0;
+  text-align: left;
+  color: rgba(255,255,255,0.5);
+  font-size: 0.8rem;
+}
+.ng-price-card p span {
+  color: #8b5cf6;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+}
+
+.ng-price-card pre {
+  margin: 1rem 0 0;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+  padding: 1.25rem;
+  overflow-x: auto;
+}
+.ng-price-card code {
+  color: rgba(255,255,255,0.8);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  font-family: "Fira Code", monospace;
+}
+.ng-price-card small {
+  margin-top: 0.875rem;
+  display: block;
+  color: rgba(255,255,255,0.35);
+  font-size: 0.8rem;
+}
+
+/* ── React Island ── */
+#ng-react-island {
+  margin: 2rem auto 0;
+  width: min(960px, 100%);
+}
+.ng-island__noscript {
+  margin-top: 1rem;
+  color: rgba(255,255,255,0.35);
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+/* ── Company Grid ── */
+.ng-company__grid {
+  margin-top: 3rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.06);
+}
+
+.ng-company__grid article {
+  background: #050505;
+  padding: 2rem 1.75rem;
+  transition: background 200ms ease;
+}
+.ng-company__grid article:hover { background: rgba(255,255,255,0.02); }
+
+.ng-company__grid h3 {
+  margin: 0 0 0.6rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+.ng-company__grid p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.6;
+}
+
+/* ── Eyebrow — with icon support ── */
+.ng-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.75rem;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  background: rgba(139, 92, 246, 0.07);
+  color: #a78bfa;
+  border-radius: 999px;
+  padding: 0.4rem 1rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.ng-eyebrow svg {
+  flex-shrink: 0;
+  color: #8b5cf6;
+}
+
+/* ── Proof row divider dots ── */
+.ng-proof-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.875rem;
+  color: rgba(255,255,255,0.45);
+  font-size: 0.82rem;
+  margin-top: 1.75rem;
+}
+.ng-proof-row strong {
+  color: #ffffff;
+  font-weight: 700;
+}
+.ng-proof-divider {
+  display: inline-block;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  flex-shrink: 0;
+}
+
+/* ── Trust strip ── */
+.ng-trust-strip {
+  margin-top: 2.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.ng-trust-label {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: rgba(255,255,255,0.25);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.ng-trust-logos {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+.ng-trust-logos span {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.2);
+  letter-spacing: -0.01em;
+  transition: color 200ms ease;
+}
+.ng-trust-logos span:hover {
+  color: rgba(255,255,255,0.45);
+}
+
+/* ── Numbers stat strip ── */
+.ng-numbers-strip {
+  background: rgba(255,255,255,0.015);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  padding: 3rem 0;
+}
+
+.ng-numbers-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.ng-number-item {
+  background: #050505;
+  padding: 2rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: background 200ms ease;
+}
+.ng-number-item:hover {
+  background: rgba(255,255,255,0.02);
+}
+
+.ng-number-item strong {
+  display: block;
+  font-size: clamp(2rem, 3.5vw, 2.75rem);
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+.ng-number-item span {
+  font-size: 0.8125rem;
+  color: rgba(255,255,255,0.4);
+  line-height: 1.5;
+  max-width: 160px;
+}
+
+/* ── CTA arrow icon in button ── */
+.ng-btn svg {
+  transition: transform 180ms ease;
+  flex-shrink: 0;
+}
+.ng-btn:hover svg {
+  transform: translateX(3px);
+}
+
+/* ── Footer ── */
+
+.ng-footer {
+  background: #050505;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding: 4rem 0 2rem;
+  color: #ffffff;
+}
+
+.ng-footer__panel {
+  width: min(960px, calc(100% - 3rem));
+  margin: 0 auto;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px;
+  padding: 2.5rem;
+}
+.ng-footer__panel h3 {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.03em;
+}
+.ng-footer__panel p {
+  margin: 0 0 1.5rem;
+  color: rgba(255,255,255,0.45);
+}
+
+.ng-footer__links {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1.5rem;
+}
+
+.ng-footer__links h4 {
+  margin: 0 0 1rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: rgba(255,255,255,0.4);
+  font-weight: 600;
+}
+.ng-footer__links a {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  color: rgba(255,255,255,0.55);
+  text-decoration: none;
+  transition: color 150ms ease;
+}
+.ng-footer__links a:hover { color: #ffffff; }
+
+.ng-footer__bottom {
+  margin: 2rem auto 0;
+  width: min(960px, calc(100% - 3rem));
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem;
+  color: rgba(255,255,255,0.35);
+  font-size: 0.8rem;
+}
+
+/* ── Animations ── */
+[data-animate] {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 500ms cubic-bezier(0.4, 0, 0.2, 1),
+              transform 500ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+[data-animate].is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Hover interactions (pointer devices only) ── */
+@media (hover: hover) and (pointer: fine) {
+  .ng-showcase-card,
+  .ng-card,
+  .ng-company__grid article {
+    transition: background 200ms ease, transform 200ms ease;
+  }
+  .ng-footer__panel {
+    transition: border-color 200ms ease;
+  }
+  .ng-footer__panel:hover {
+    border-color: rgba(255,255,255,0.12);
+  }
+}
+
+/* ── RESPONSIVE BREAKPOINTS ── */
+
+/* Large tablets / small desktops */
+@media (max-width: 1100px) {
+  .ng-hero-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+
+  .ng-hero__heading { padding-right: 2rem; }
+
+  .ng-showcase__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .ng-footer__links {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Tablet: hide desktop nav, show hamburger, image as faint background */
+@media (max-width: 900px) {
+  .ng-nav-links,
+  .ng-nav-login,
+  .ng-nav-actions > a.ng-btn,
+  .ng-nav-actions > a.ng-nav-login {
+    display: none;
+  }
+
+  .ng-nav-toggle {
+    display: inline-flex;
+  }
+
+  .ng-hero-grid {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    padding: 3rem 0 2rem;
+    position: relative;
+  }
+
+  .ng-hero__visual {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    opacity: 0.07;
+    pointer-events: none;
+  }
+
+  .hero-illustration {
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transform: none;
+    -webkit-mask-image: none;
+    mask-image: none;
+    mix-blend-mode: screen;
+    filter: brightness(1.2) contrast(1.1);
+  }
+
+  .ng-hero__heading {
+    position: relative;
+    z-index: 1;
+    padding-right: 0;
+    max-width: 100%;
+    padding-top: 2rem;
+    padding-bottom: 3rem;
+  }
+
+  .ng-showcase__grid,
+  .ng-card-grid,
+  .ng-company__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .ng-wrap,
+  .ng-navbar__inner {
+    width: calc(100% - 2rem);
+  }
+
+  .ng-hero {
+    min-height: auto;
+  }
+
+  .ng-hero-grid {
+    padding: 2.5rem 0 2rem;
+  }
+
+  .ng-hero__heading h1 {
+    font-size: clamp(2rem, 10vw, 3rem);
+    letter-spacing: -0.035em;
+    line-height: 1.06;
+  }
+
+  .ng-hero__heading p {
+    font-size: 0.9375rem;
+    color: rgba(255,255,255,0.5);
+  }
+
+  .ng-hero__cta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.625rem;
+  }
+
+  .ng-hero__cta .ng-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .ng-demo-form {
+    flex-direction: column;
+    border-radius: 12px;
+    overflow: visible;
+    border: none;
+    background: none;
+    padding: 0;
+    box-shadow: none;
+    gap: 0.5rem;
+    max-width: 100%;
+  }
+  .ng-demo-form:focus-within { box-shadow: none; }
+
+  .ng-demo-form input {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 0.875rem 1rem;
+    width: 100%;
+    font-size: 1rem;
+  }
+
+  .ng-demo-form button {
+    border-radius: 10px;
+    padding: 0.875rem;
+    font-size: 0.9375rem;
+    width: 100%;
+    text-align: center;
+  }
+
+  .ng-proof-row {
+    gap: 1rem;
+    font-size: 0.8rem;
+  }
+
+  .ng-showcase,
+  .ng-blocks,
+  .ng-privacy,
+  .ng-island,
+  .ng-stack,
+  .ng-company,
+  .ng-dark-band {
+    padding: 4rem 0;
+  }
+
+  .ng-showcase__grid,
+  .ng-company__grid {
+    grid-template-columns: 1fr;
+    gap: 1px;
+  }
+
+  .ng-card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ng-footer__links {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .ng-mobile-menu {
+    padding: 1.5rem 1rem;
+  }
+
+  .ng-mobile-menu a {
+    font-size: 1rem;
+    padding: 0.75rem 0.875rem;
+  }
+
+  .ng-logo-rail {
+    gap: 0.4rem;
+  }
+  .ng-logo-rail span {
+    font-size: 0.7rem;
+    padding: 0.3rem 0.65rem;
+  }
+}
+
+
+/* Small phones */
+@media (max-width: 390px) {
+  .ng-hero__heading h1 {
+    font-size: clamp(1.875rem, 9vw, 2.5rem);
+  }
+
+  .ng-footer__links {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: duration 10ms !important;
+  }
+}
+
+/* ── Testimonials ── */
+.ng-testimonials {
+  padding: 10rem 0;
+  background: #050505;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  position: relative;
+}
+
+.ng-testimonials::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent);
+}
+
+.ng-testimonials__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: 5rem;
+}
+
+.ng-review-card {
+  background: rgba(255, 255, 255, 0.012);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  padding: 2.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  transition: all 0.4s cubic-bezier(0.2, 0, 0, 1);
+  backdrop-filter: blur(8px);
+}
+
+.ng-review-card:hover {
+  border-color: rgba(139, 92, 246, 0.3);
+  background: rgba(139, 92, 246, 0.03);
+  transform: translateY(-6px);
+  box-shadow: 0 12px 40px -12px rgba(0,0,0,0.5);
+}
+
+.ng-review-stars {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 0.35rem;
+  color: #fbbf24;
+}
+
+.ng-review-stars i,
+.ng-review-stars svg {
+  width: 16px !important;
+  height: 16px !important;
+  display: inline-block !important;
+  fill: currentColor !important;
+  stroke: none !important;
+}
+
+.ng-review-card p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  font-style: italic;
+  margin: 0;
+  flex: 1;
+}
+
+.ng-review-author {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  opacity: 0.9;
+}
+
+.ng-review-author::before {
+  content: '';
+  width: 16px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+@media (max-width: 1024px) {
+  .ng-testimonials__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .ng-testimonials {
+    padding: 6rem 0;
+  }
+  .ng-testimonials__grid {
+    grid-template-columns: 1fr;
+    margin-top: 3.5rem;
+  }
+  .ng-review-card {
+    padding: 1.75rem;
+  }
+}
+a[href*="spline.design"] {
+  display: none !important;
+}
+svg:has(path[d*="M0.966 10V1.276H3.894"]) {
+  display: none !important;
+}
+/* Targets any element containing "Built with" */
+a:contains("Built with"), 
+span:contains("Built with"), 
+div:contains("Built with") {
+  display: none !important;
+}
+/* Common class names for Spline badges */
+.spline-badge,
+.built-with-spline,
+[data-spline],
+[data-cm-badge],
+[class*="spline"] {
+  display: none !important;
+}
+/* Targets SVGs that look like the Spline logo icon */
+svg[class*="spline"], 
+svg[class*="badge"], 
+[class*="spline-icon"] {
+  display: none !important;
+}
