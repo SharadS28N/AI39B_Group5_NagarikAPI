@@ -1,18 +1,211 @@
-{% extends 'pages/base.html' %}
+{% extends 'layouts/base.html' %}
 
 {% block title %}Solutions | NagarikAPI{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/hero.css') }}">
+<style>
+  .ng-solutions-section {
+    padding: 160px 0 100px;
+    background: #050505;
+  }
+
+  .ng-sol-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 120px;
+    margin-top: 80px;
+  }
+
+  .ng-sol-item {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 80px;
+  }
+
+  .ng-sol-item:nth-child(even) .ng-sol-content {
+    order: 2;
+  }
+
+  .ng-sol-item:nth-child(even) .ng-sol-visual {
+    order: 1;
+  }
+
+  .ng-sol-content h2 {
+    font-size: clamp(1.75rem, 3vw, 2.75rem);
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+  }
+
+  .ng-sol-content p {
+    font-size: 1.125rem;
+    color: rgba(255, 255, 255, 0.5);
+    line-height: 1.6;
+    margin-bottom: 2rem;
+  }
+
+  .ng-sol-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .ng-sol-list li {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: #ffffff;
+    font-weight: 500;
+    font-size: 0.9375rem;
+  }
+
+  .ng-sol-list li svg {
+    color: #8b5cf6;
+    flex-shrink: 0;
+  }
+
+  .ng-sol-visual {
+    position: relative;
+    aspect-ratio: 4/3;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .ng-sol-visual .glow {
+    position: absolute;
+    width: 250px;
+    height: 250px;
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
+    filter: blur(40px);
+    z-index: 0;
+  }
+
+  .ng-sol-visual i,
+  .ng-sol-visual svg {
+    position: relative;
+    z-index: 1;
+    color: #ffffff;
+    opacity: 0.8;
+  }
+
+  @media (max-width: 1024px) {
+    .ng-sol-item {
+      grid-template-columns: 1fr;
+      text-align: center;
+      gap: 40px;
+    }
+
+    .ng-sol-item:nth-child(even) .ng-sol-content {
+      order: 1;
+    }
+
+    .ng-sol-item:nth-child(even) .ng-sol-visual {
+      order: 2;
+    }
+
+    .ng-sol-list {
+      align-items: center;
+    }
+  }
+</style>
+{% endblock %}
+
 {% block content %}
-<section class="panel">
-    <h1>Solutions</h1>
-    <p>Modular tools for KYC onboarding, transaction risk checks, and document lifecycle management.</p>
-</section>
-<section class="panel">
-    <h2>Use cases</h2>
-    <ul>
-        <li>Digital account opening</li>
-        <li>Periodic KYC refreshes</li>
-        <li>Enhanced due diligence for high-risk profiles</li>
-    </ul>
-</section>
+<main class="ng-solutions-section">
+  <div class="ng-wrap">
+    <div class="ng-showcase__head" data-animate>
+      <h1 class="text-4xl md:text-7xl font-bold text-white mb-8 tracking-tighter">Tools for trust.</h1>
+      <p class="text-gray-400 text-lg max-w-3xl mx-auto">
+        We provide the technical bedrock for modern financial onboarding in Nepal. Secure, automated, and legally
+        compliant systems built for the next generation of fintech.
+      </p>
+    </div>
+
+    <div class="ng-sol-grid">
+      <!-- OCR -->
+      <section class="ng-sol-item" data-animate>
+        <div class="ng-sol-content">
+          <h2>Smart Document OCR</h2>
+          <p>
+            Our proprietary AI engines extract text from diverse documents including the New National ID, Citizenship
+            cards, and Passports with 99.8% accuracy.
+          </p>
+          <ul class="ng-sol-list">
+            <li><i data-lucide="zap" class="w-5 h-5"></i> Sub-second extraction speed</li>
+            <li><i data-lucide="scan" class="w-5 h-5"></i> Handwriting recognition support</li>
+            <li><i data-lucide="layers" class="w-5 h-5"></i> Automatic field mapping & validation</li>
+          </ul>
+        </div>
+        <div class="ng-sol-visual">
+          <div class="glow"></div>
+          <i data-lucide="scan-text" class="w-32 h-32"></i>
+        </div>
+      </section>
+
+      <!-- Face Match -->
+      <section class="ng-sol-item" data-animate>
+        <div class="ng-sol-visual">
+          <div class="glow" style="background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%);">
+          </div>
+          <i data-lucide="user-check" class="w-32 h-32" style="color: #60a5fa;"></i>
+        </div>
+        <div class="ng-sol-content">
+          <h2>Liveness & Biometrics</h2>
+          <p>
+            Compare selfies against document photos using neural networks designed to detect 3D spoofs, high-res screen
+            playbacks, and sophisticated print attacks.
+          </p>
+          <ul class="ng-sol-list">
+            <li><i data-lucide="shield-check" class="w-5 h-5" style="color: #60a5fa;"></i> Passive liveness detection
+            </li>
+            <li><i data-lucide="fingerprint" class="w-5 h-5" style="color: #60a5fa;"></i> Real-time identity scoring
+            </li>
+            <li><i data-lucide="eye" class="w-5 h-5" style="color: #60a5fa;"></i> ISO-compliant biometric storage</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Compliance -->
+      <section class="ng-sol-item" data-animate>
+        <div class="ng-sol-content">
+          <h2>Compliance & Audit</h2>
+          <p>
+            Every verification generates a complete, tamper-proof audit trail that satisfies Nepal Rastra Bank (NRB)
+            guidelines for Digital KYC.
+          </p>
+          <ul class="ng-sol-list">
+            <li><i data-lucide="lock" class="w-5 h-5" style="color: #10b981;"></i> End-to-end PII encryption</li>
+            <li><i data-lucide="file-text" class="w-5 h-5" style="color: #10b981;"></i> NRB Digital KYC compliant</li>
+            <li><i data-lucide="history" class="w-5 h-5" style="color: #10b981;"></i> Immutable transaction logging</li>
+          </ul>
+        </div>
+        <div class="ng-sol-visual">
+          <div class="glow" style="background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%);">
+          </div>
+          <i data-lucide="clipboard-check" class="w-32 h-32" style="color: #34d399;"></i>
+        </div>
+      </section>
+    </div>
+
+    <!-- CTA Section -->
+    <div style="margin-top: 120px; text-align: center;" data-animate>
+      <h2 style="color: #ffffff; font-size: 2rem; margin-bottom: 1.5rem;">Ready to automate your KYC?</h2>
+      <div style="display: flex; gap: 1rem; justify-content: center;">
+        <a href="{{ url_for('main.contact') }}" class="ng-btn ng-btn--primary">Get a demo</a>
+        <a href="{{ url_for('main.docs') }}" class="ng-btn ng-btn--ghost">View API docs</a>
+      </div>
+    </div>
+  </div>
+</main>
 {% endblock %}
