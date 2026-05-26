@@ -5,7 +5,7 @@ from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 
 from config import Config
-from app.database import ensure_schema
+from app.database import ensure_schema, preflight_database_check
 
 bcrypt = Bcrypt()
 login_manager = LoginManager()
@@ -50,14 +50,19 @@ def create_app():
         }
 
     with app.app_context():
-        try:
-            ensure_schema()
-            app.config['DATABASE_READY'] = True
+        connected, message = preflight_database_check()
+        app.config['DATABASE_READY'] = connected
 
-            if os.getenv('SEED_DEMO_DATA', '').strip().lower() in {'1', 'true', 'yes', 'on'}:
-                seed_demo_data()
-        except Exception as exc:
-            app.config['DATABASE_READY'] = False
-            app.logger.warning('Skipping database initialization: %s', exc)
+        if connected:
+            try:
+                ensure_schema()
+
+                if os.getenv('SEED_DEMO_DATA', '').strip().lower() in {'1', 'true', 'yes', 'on'}:
+                    seed_demo_data()
+            except Exception as exc:
+                app.config['DATABASE_READY'] = False
+                app.logger.warning('Skipping database initialization: %s', exc)
+        else:
+            app.logger.warning('Database preflight failed: %s', message)
 
     return app
