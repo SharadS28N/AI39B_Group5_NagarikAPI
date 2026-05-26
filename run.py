@@ -1,14 +1,12 @@
 from app import create_app
-import os
 
 app = create_app()
 
 def main():
-    debug = os.getenv('FLASK_DEBUG', '').strip().lower() in {'1', 'true', 'yes', 'on'}
-    host = os.getenv('HOST', '127.0.0.1')
-    port = int(os.getenv('PORT', '5000'))
+    host = app.config.get('HOST', '127.0.0.1')
+    port = int(app.config.get('PORT', 5000))
 
-    app.run(host=host, port=port, debug=debug, use_reloader=debug)
+    app.run(host=host, port=port, debug=True, use_reloader=True)
 
 if __name__ == '__main__':
     main()
