@@ -18,11 +18,13 @@ def _connection_kwargs():
         'charset': 'utf8mb4',
         'cursorclass': DictCursor,
         'autocommit': False,
+        'connect_timeout': 10,
     }
 
-    ssl_ca = config.get('MYSQL_SSL_CA', '')
-    if ssl_ca and os.path.exists(ssl_ca):
-        kwargs['ssl'] = {'ca': ssl_ca}
+    # Enable SSL for Aiven (development mode)
+    # For Aiven port 12398, SSL is required but cert verification can be relaxed
+    if config.get('MYSQL_PORT') == 12398 or config.get('MYSQL_SSL_CA'):
+        kwargs['ssl'] = {}  # Empty dict enables SSL without strict verification
 
     return kwargs
 
@@ -66,15 +68,26 @@ def ping_database():
         row = fetch_one('SELECT 1 AS ok')
         return True, row.get('ok') == 1 if row else False, None
     except socket.gaierror as exc:
-        return False, False, (
-            'MySQL host could not be resolved. Check DB_HOST in .env and verify DNS/network access. '
+        msg = (
+            f'DNS resolution failed for {current_app.config.get("MYSQL_HOST")}. '
+            'Check network access, DNS settings, and that the hostname is correct. '
+            f'Error: {exc}'
+        )
+        return False, False, msg
+    except pymysql.OperationalError as exc:
+        msg = (
+            f'MySQL OperationalError (host: {current_app.config.get("MYSQL_HOST")}, '
+            f'port: {current_app.config.get("MYSQL_PORT")}). '
+            'Check credentials, port, SSL settings, and firewall rules. '
             f'Details: {exc}'
         )
+        return False, False, msg
     except Exception as exc:
-        return False, False, (
-            'MySQL connection failed. Check DB_HOST, DB_PORT, credentials, and SSL_CA. '
-            f'Details: {exc}'
+        msg = (
+            'MySQL connection failed. Check DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, SSL_CA. '
+            f'Details: {type(exc).__name__}: {exc}'
         )
+        return False, False, msg
 
 
 def preflight_database_check():
