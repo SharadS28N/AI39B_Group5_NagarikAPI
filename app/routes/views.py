@@ -1,7 +1,8 @@
-from flask import render_template, request, jsonify, redirect, url_for
+from flask import render_template, request, jsonify, redirect, url_for, current_app
 from flask_login import login_required, current_user
 from app.routes import main
 from app.models import KYCRequest, User, Company
+from app.database import ping_database
 
 @main.route('/')
 def index():
@@ -35,6 +36,22 @@ def blog():
 def careers():
     return render_template('pages/careers.html')
 
+@main.route('/status')
+def status():
+    db_connected, ping_ok, db_error = ping_database()
+    status_snapshot = {
+        'app_name': current_app.name,
+        'debug': bool(current_app.debug),
+        'database_connected': db_connected,
+        'database_ping_ok': ping_ok,
+        'database_error': db_error,
+        'database_host': current_app.config.get('MYSQL_HOST'),
+        'database_port': current_app.config.get('MYSQL_PORT'),
+        'database_name': current_app.config.get('MYSQL_DATABASE'),
+        'database_ssl': bool(current_app.config.get('MYSQL_SSL_CA')),
+    }
+    return render_template('pages/status.html', status=status_snapshot)
+
 # Dashboards
 @main.route('/dashboard')
 @login_required
@@ -51,9 +68,9 @@ def admin_dashboard():
     if current_user.role != 'admin':
         return redirect(url_for('main.dashboard'))
     stats = {
-        'total_users': User.query.count(),
-        'total_companies': Company.query.count(),
-        'total_requests': KYCRequest.query.count()
+        'total_users': User.count(),
+        'total_companies': Company.count(),
+        'total_requests': KYCRequest.count()
     }
     return render_template('pages/dashboards/admin.html', stats=stats)
 
@@ -62,8 +79,8 @@ def admin_dashboard():
 def company_dashboard():
     if current_user.role not in ['company_admin', 'admin']:
         return redirect(url_for('main.dashboard'))
-    company = Company.query.get(current_user.company_id)
-    requests = KYCRequest.query.filter_by(company_id=current_user.company_id).all()
+    company = Company.get_by_id(current_user.company_id) if current_user.company_id else None
+    requests = KYCRequest.for_company(current_user.company_id) if current_user.company_id else []
     return render_template('pages/dashboards/company.html', company=company, requests=requests)
 
 # API
@@ -76,4 +93,4 @@ def demo_request():
             return jsonify({'error': 'Email is required'}), 400
         return jsonify({'success': True, 'message': 'Request received'}), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': str(e)}), 500

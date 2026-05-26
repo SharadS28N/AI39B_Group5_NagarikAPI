@@ -1,0 +1,167 @@
+{% extends 'pages/base.html' %}
+
+{% block title %}System Status | NagarikAPI{% endblock %}
+
+{% block content %}
+<style>
+    .status-hero {
+        display: grid;
+        gap: 1.5rem;
+    }
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.45rem 0.8rem;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.08);
+        color: #fff;
+        font-size: 0.8rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+    .status-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1rem;
+    }
+    .status-card {
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 18px;
+        background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+        padding: 1.2rem;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.22);
+    }
+    .status-card h3 {
+        margin: 0 0 0.4rem;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: rgba(255,255,255,0.65);
+    }
+    .status-value {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #fff;
+        margin: 0;
+    }
+    .status-muted {
+        color: rgba(255,255,255,0.7);
+        font-size: 0.95rem;
+        margin-top: 0.5rem;
+    }
+    .status-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .status-table th,
+    .status-table td {
+        border-bottom: 1px solid rgba(255,255,255,0.12);
+        padding: 0.8rem 0;
+        text-align: left;
+    }
+    .pill-on {
+        color: #22c55e;
+    }
+    .pill-off {
+        color: #f97316;
+    }
+    .stack {
+        display: grid;
+        gap: 1rem;
+    }
+    .hero-copy {
+        display: grid;
+        gap: 0.8rem;
+    }
+    .hero-title {
+        font-size: clamp(2.2rem, 5vw, 4rem);
+        line-height: 0.96;
+        letter-spacing: -0.05em;
+        margin: 0;
+        color: #fff;
+        max-width: 12ch;
+    }
+    .hero-text {
+        font-size: 1.05rem;
+        line-height: 1.7;
+        color: rgba(255,255,255,0.72);
+        max-width: 70ch;
+    }
+    .banner {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.65rem 0.9rem;
+        border-radius: 999px;
+        background: rgba(139,92,246,0.14);
+        border: 1px solid rgba(139,92,246,0.28);
+        color: #fff;
+        width: fit-content;
+        font-size: 0.85rem;
+    }
+</style>
+
+<section class="status-hero">
+    <div class="hero-copy">
+        <span class="banner">Flask readiness and database health</span>
+        <h1 class="hero-title">System Ready</h1>
+        <p class="hero-text">
+            This page shows the current Flask runtime, debug mode, and whether the MySQL backend is reachable.
+            Use it as the quick health check while developing or demoing the project.
+        </p>
+    </div>
+
+    <div class="status-grid">
+        <div class="status-card">
+            <h3>Flask Debug</h3>
+            <p class="status-value">{{ 'On' if status.debug else 'Off' }}</p>
+            <p class="status-muted">The app is configured to run in debug mode.</p>
+        </div>
+        <div class="status-card">
+            <h3>Database Connection</h3>
+            <p class="status-value {{ 'pill-on' if status.database_connected else 'pill-off' }}">
+                {{ 'Connected' if status.database_connected else 'Unavailable' }}
+            </p>
+            <p class="status-muted">
+                {% if status.database_connected %}
+                    MySQL responded successfully to a live ping.
+                {% else %}
+                    {{ status.database_error or 'The configured MySQL host could not be reached.' }}
+                {% endif %}
+            </p>
+        </div>
+        <div class="status-card">
+            <h3>App Name</h3>
+            <p class="status-value">{{ status.app_name }}</p>
+            <p class="status-muted">Running under the current Flask application context.</p>
+        </div>
+        <div class="status-card">
+            <h3>MySQL Target</h3>
+            <p class="status-value">{{ status.database_host }}:{{ status.database_port }}</p>
+            <p class="status-muted">Database: {{ status.database_name }}</p>
+        </div>
+    </div>
+
+    <div class="status-card stack">
+        <div>
+            <h3>Environment Snapshot</h3>
+            <p class="status-muted">This summary is useful when you want to confirm the app is ready before logging in or testing routes.</p>
+        </div>
+        <table class="status-table">
+            <tr>
+                <th>Flask debug</th>
+                <td>{{ 'enabled' if status.debug else 'disabled' }}</td>
+            </tr>
+            <tr>
+                <th>Database ping</th>
+                <td>{{ 'ok' if status.database_ping_ok else 'failed' }}</td>
+            </tr>
+            <tr>
+                <th>SSL CA</th>
+                <td>{{ 'enabled' if status.database_ssl else 'not configured' }}</td>
+            </tr>
+        </table>
+    </div>
+</section>
+{% endblock %}
