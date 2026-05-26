@@ -1,4 +1,5 @@
 import os
+import socket
 from contextlib import contextmanager
 
 import pymysql
@@ -64,8 +65,24 @@ def ping_database():
     try:
         row = fetch_one('SELECT 1 AS ok')
         return True, row.get('ok') == 1 if row else False, None
+    except socket.gaierror as exc:
+        return False, False, (
+            'MySQL host could not be resolved. Check DB_HOST in .env and verify DNS/network access. '
+            f'Details: {exc}'
+        )
     except Exception as exc:
-        return False, False, str(exc)
+        return False, False, (
+            'MySQL connection failed. Check DB_HOST, DB_PORT, credentials, and SSL_CA. '
+            f'Details: {exc}'
+        )
+
+
+def preflight_database_check():
+    connected, ping_ok, error = ping_database()
+    if connected and ping_ok:
+        return True, 'Database connection verified.'
+
+    return False, error or 'Database connection check failed.'
 
 
 def executemany(query, params_list):
