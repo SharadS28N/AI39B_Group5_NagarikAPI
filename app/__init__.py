@@ -24,10 +24,12 @@ def create_app():
 
     from app.routes.auth import auth
     from app.routes.views import main
+    from app.routes.api import api
     from app.models import User, seed_demo_data
 
     app.register_blueprint(main)
     app.register_blueprint(auth)
+    app.register_blueprint(api)
 
     @login_manager.user_loader
     def load_user(user_id):
@@ -56,6 +58,15 @@ def create_app():
         if connected:
             try:
                 ensure_schema()
+                
+                # Initialize KYC and Token tables
+                from app.models.kyc import KYC
+                from app.models.token import TokenManager
+                from app.models.api_key import APIKeyManager
+                
+                KYC.create_table()
+                TokenManager.create_table()
+                APIKeyManager.create_table()
 
                 if os.getenv('SEED_DEMO_DATA', '').strip().lower() in {'1', 'true', 'yes', 'on'}:
                     seed_demo_data()
