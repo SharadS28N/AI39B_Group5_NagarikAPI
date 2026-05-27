@@ -27,21 +27,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-#mobile-menu {
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-#mobile-menu.hidden {
-    display: none;
-    transform: translateY(-100%);
-}
-
-#mobile-menu:not(.hidden) {
-    display: block;
-    transform: translateY(0);
-}
-
-
 /* Typography */
 
 h1,
@@ -147,10 +132,6 @@ input::placeholder {
 @media (max-width: 768px) {
   body {
     font-size: var(--text-sm);
-  }
-
-  .ng-demo-form {
-    flex-direction: column;
   }
 }
 
