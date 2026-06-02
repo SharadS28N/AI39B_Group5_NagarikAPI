@@ -2,8 +2,7 @@ from urllib.parse import urlparse, urljoin
 
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
-from app.models import User, db
-from app import bcrypt
+from app.models import User
 
 auth = Blueprint('auth', __name__)
 
@@ -25,7 +24,7 @@ def login():
         password = request.form.get('password')
         remember = True if request.form.get('remember') else False
         
-        user = User.query.filter_by(email=email).first()
+        user = User.find_by_email(email)
         
         if user and user.check_password(password):
             login_user(user, remember=remember)
@@ -48,15 +47,12 @@ def register():
         email = request.form.get('email')
         password = request.form.get('password')
         
-        user = User.query.filter_by(email=email).first()
+        user = User.find_by_email(email)
         if user:
             flash('Email already registered.', 'danger')
             return redirect(url_for('auth.register'))
             
-        new_user = User(full_name=full_name, email=email)
-        new_user.set_password(password)
-        db.session.add(new_user)
-        db.session.commit()
+        User.create(full_name=full_name, email=email, password=password)
         
         flash('Your account has been created! You are now able to log in', 'success')
         return redirect(url_for('auth.login'))
