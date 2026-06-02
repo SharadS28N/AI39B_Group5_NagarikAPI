@@ -57,3 +57,16 @@ class Config:
     MYSQL_PASSWORD = MYSQL_SETTINGS['password']
     MYSQL_DATABASE = MYSQL_SETTINGS['database']
     MYSQL_SSL_CA = _resolve_ssl_ca()
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    # Build SQLALCHEMY_DATABASE_URI from MySQL settings if available
+    if MYSQL_USER or MYSQL_PASSWORD or MYSQL_HOST or MYSQL_DATABASE:
+        user = MYSQL_USER or ''
+        password = MYSQL_PASSWORD or ''
+        auth = f"{user}:{password}@" if user or password else ''
+        host = MYSQL_HOST or '127.0.0.1'
+        port = f":{MYSQL_PORT}" if MYSQL_PORT else ''
+        database = MYSQL_DATABASE or ''
+        SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{auth}{host}{port}/{database}"
+    else:
+        SQLALCHEMY_DATABASE_URI = ''

@@ -51,7 +51,7 @@ def register():
         if user:
             flash('Email already registered.', 'danger')
             return redirect(url_for('auth.register'))
-            
+
         User.create(full_name=full_name, email=email, password=password)
         
         flash('Your account has been created! You are now able to log in', 'success')
