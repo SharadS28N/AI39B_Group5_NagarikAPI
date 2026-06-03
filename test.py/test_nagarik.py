@@ -75,3 +75,19 @@ def test_new_user_default_role_is_user(db):
     db.session.add(user)
     db.session.commit()
     assert user.role == 'user'
+
+
+def test_duplicate_email_is_blocked(db):
+    user1 = User(full_name='User One', email='same@nagarik.com')
+    user1.set_password('Pass@1111')
+    db.session.add(user1)
+    db.session.commit()
+    user2 = User(full_name='User Two', email='same@nagarik.com')
+    user2.set_password('Pass@2222')
+    db.session.add(user2)
+    try:
+        db.session.commit()
+        assert False, 'Should have raised error for duplicate email'
+    except Exception:
+        db.session.rollback()
+        assert True
