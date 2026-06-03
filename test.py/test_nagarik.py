@@ -41,3 +41,13 @@ def sample_user(db):
     db.session.add(user)
     db.session.commit()
     return user
+
+
+def test_password_is_hashed_not_plaintext(db):
+    user = User(full_name='Sharad Bhandari', email='sharad@nagarik.com')
+    user.set_password('MyPassword123')
+    db.session.add(user)
+    db.session.commit()
+    assert user.password_hash != 'MyPassword123'
+    assert user.password_hash is not None
+    assert len(user.password_hash) > 20
