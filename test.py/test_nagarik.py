@@ -171,3 +171,11 @@ def test_login_wrong_password_fails(client, db, sample_user):
         'password': 'WrongPass'
     }, follow_redirects=True)
     assert b'Login Unsuccessful' in response.data
+
+
+def test_login_nonexistent_email_fails(client, db):
+    response = client.post('/login', data={
+        'email': 'ghost@nagarik.com',
+        'password': 'Test@1234'
+    }, follow_redirects=True)
+    assert b'Login Unsuccessful' in response.data
