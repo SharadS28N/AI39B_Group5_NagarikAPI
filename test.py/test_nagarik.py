@@ -51,3 +51,10 @@ def test_password_is_hashed_not_plaintext(db):
     assert user.password_hash != 'MyPassword123'
     assert user.password_hash is not None
     assert len(user.password_hash) > 20
+
+def test_correct_password_is_accepted(db):
+    user = User(full_name='Vision Pahari', email='vision@nagarik.com')
+    user.set_password('Secure@99')
+    db.session.add(user)
+    db.session.commit()
+    assert user.check_password('Secure@99') is True
