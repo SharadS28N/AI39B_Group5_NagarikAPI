@@ -124,3 +124,13 @@ def test_kyc_linked_to_correct_user(db):
     db.session.add(kyc)
     db.session.commit()
     assert kyc.user_id == user.id
+
+
+def test_register_new_user_success(client, db):
+    response = client.post('/register', data={
+        'full_name': 'New User',
+        'email': 'newuser@nagarik.com',
+        'password': 'Test@1234'
+    }, follow_redirects=True)
+    assert response.status_code == 200
+    assert b'account has been created' in response.data
