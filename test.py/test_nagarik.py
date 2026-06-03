@@ -58,3 +58,11 @@ def test_correct_password_is_accepted(db):
     db.session.add(user)
     db.session.commit()
     assert user.check_password('Secure@99') is True
+
+
+def test_wrong_password_is_rejected(db):
+    user = User(full_name='Mingmar Lama', email='mingmar@nagarik.com')
+    user.set_password('Correct@123')
+    db.session.add(user)
+    db.session.commit()
+    assert user.check_password('WrongPassword') is False
