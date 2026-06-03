@@ -163,3 +163,11 @@ def test_login_correct_credentials_succeeds(client, db, sample_user):
     }, follow_redirects=True)
     assert response.status_code == 200
     assert b'Login Unsuccessful' not in response.data
+
+
+def test_login_wrong_password_fails(client, db, sample_user):
+    response = client.post('/login', data={
+        'email': 'test@nagarik.com',
+        'password': 'WrongPass'
+    }, follow_redirects=True)
+    assert b'Login Unsuccessful' in response.data
