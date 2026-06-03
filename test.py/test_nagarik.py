@@ -66,3 +66,12 @@ def test_wrong_password_is_rejected(db):
     db.session.add(user)
     db.session.commit()
     assert user.check_password('WrongPassword') is False
+
+
+
+def test_new_user_default_role_is_user(db):
+    user = User(full_name='Sushanta Malla', email='sushanta@nagarik.com')
+    user.set_password('Test@1234')
+    db.session.add(user)
+    db.session.commit()
+    assert user.role == 'user'
