@@ -179,3 +179,11 @@ def test_login_nonexistent_email_fails(client, db):
         'password': 'Test@1234'
     }, follow_redirects=True)
     assert b'Login Unsuccessful' in response.data
+
+
+def test_company_created_successfully(db):
+    company = Company(name='Bank Nepal', registration_number='BN-001')
+    db.session.add(company)
+    db.session.commit()
+    assert company.id is not None
+    assert company.name == 'Bank Nepal'
