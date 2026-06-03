@@ -187,3 +187,16 @@ def test_company_created_successfully(db):
     db.session.commit()
     assert company.id is not None
     assert company.name == 'Bank Nepal'
+
+def test_company_registration_number_is_unique(db):
+    company1 = Company(name='Bank A', registration_number='REG-001')
+    db.session.add(company1)
+    db.session.commit()
+    company2 = Company(name='Bank B', registration_number='REG-001')
+    db.session.add(company2)
+    try:
+        db.session.commit()
+        assert False, 'Should have raised error for duplicate registration'
+    except Exception:
+        db.session.rollback()
+        assert True
