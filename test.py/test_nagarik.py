@@ -113,3 +113,14 @@ def test_kyc_document_type_saved_correctly(db):
     db.session.add(kyc)
     db.session.commit()
     assert kyc.document_type == 'passport'
+
+
+def test_kyc_linked_to_correct_user(db):
+    user = User(full_name='Linked User', email='linked@nagarik.com')
+    user.set_password('Test@1234')
+    db.session.add(user)
+    db.session.commit()
+    kyc = KYCRequest(user_id=user.id, document_type='national_id')
+    db.session.add(kyc)
+    db.session.commit()
+    assert kyc.user_id == user.id
