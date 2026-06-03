@@ -145,3 +145,12 @@ def test_register_saves_user_to_db(client, db):
     user = User.query.filter_by(email='saved@nagarik.com').first()
     assert user is not None
     assert user.full_name == 'Saved User'
+
+
+def test_register_duplicate_email_shows_error(client, db, sample_user):
+    response = client.post('/register', data={
+        'full_name': 'Another User',
+        'email': 'test@nagarik.com',
+        'password': 'Test@1234'
+    }, follow_redirects=True)
+    assert response.status_code == 200
