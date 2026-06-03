@@ -102,3 +102,14 @@ def test_kyc_default_status_is_pending(db):
     db.session.add(kyc)
     db.session.commit()
     assert kyc.status == 'pending'
+
+
+def test_kyc_document_type_saved_correctly(db):
+    user = User(full_name='Doc User', email='doc@nagarik.com')
+    user.set_password('Test@1234')
+    db.session.add(user)
+    db.session.commit()
+    kyc = KYCRequest(user_id=user.id, document_type='passport')
+    db.session.add(kyc)
+    db.session.commit()
+    assert kyc.document_type == 'passport'
