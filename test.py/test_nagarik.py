@@ -91,3 +91,14 @@ def test_duplicate_email_is_blocked(db):
     except Exception:
         db.session.rollback()
         assert True
+
+
+def test_kyc_default_status_is_pending(db):
+    user = User(full_name='KYC User', email='kyc@nagarik.com')
+    user.set_password('Test@1234')
+    db.session.add(user)
+    db.session.commit()
+    kyc = KYCRequest(user_id=user.id, document_type='national_id')
+    db.session.add(kyc)
+    db.session.commit()
+    assert kyc.status == 'pending'
