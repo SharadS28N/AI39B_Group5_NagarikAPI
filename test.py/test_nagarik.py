@@ -134,3 +134,14 @@ def test_register_new_user_success(client, db):
     }, follow_redirects=True)
     assert response.status_code == 200
     assert b'account has been created' in response.data
+
+
+def test_register_saves_user_to_db(client, db):
+    client.post('/register', data={
+        'full_name': 'Saved User',
+        'email': 'saved@nagarik.com',
+        'password': 'Test@1234'
+    }, follow_redirects=True)
+    user = User.query.filter_by(email='saved@nagarik.com').first()
+    assert user is not None
+    assert user.full_name == 'Saved User'
