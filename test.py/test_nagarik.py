@@ -154,3 +154,12 @@ def test_register_duplicate_email_shows_error(client, db, sample_user):
         'password': 'Test@1234'
     }, follow_redirects=True)
     assert response.status_code == 200
+
+
+def test_login_correct_credentials_succeeds(client, db, sample_user):
+    response = client.post('/login', data={
+        'email': 'test@nagarik.com',
+        'password': 'Test@1234'
+    }, follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Login Unsuccessful' not in response.data
