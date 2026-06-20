@@ -250,3 +250,23 @@ def test_demo_request_accepts_valid_email(client):
         json={'email': 'demo@nagarik.com'})
     assert response.status_code == 200
     assert b'success' in response.data.lower()
+
+
+
+def test_demo_request_rejects_missing_email(client):
+    response = client.post('/api/demo-request', json={})
+    assert response.status_code == 400
+
+
+
+
+def test_contact_page_loads_successfully(client):
+    response = client.get('/contact')
+    assert response.status_code == 200
+
+
+
+
+def test_docs_page_loads_successfully(client):
+    response = client.get('/docs')
+    assert response.status_code == 200
