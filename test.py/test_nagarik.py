@@ -210,3 +210,8 @@ def test_homepage_loads_successfully(client):
 def test_about_page_loads_successfully(client):
     response = client.get('/about')
     assert response.status_code == 200
+
+
+def test_pricing_page_loads_successfully(client):
+    response = client.get('/pricing')
+    assert response.status_code == 200
