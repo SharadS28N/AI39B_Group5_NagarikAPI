@@ -12,11 +12,11 @@ def _database_settings():
     if database_url:
         return database_url
 
-    host = os.getenv('DB_HOST', 'localhost')
-    port = int(os.getenv('DB_PORT', 3306))
-    user = os.getenv('DB_USER', 'root')
-    password = os.getenv('DB_PASSWORD', '')
-    database = os.getenv('DB_NAME', 'nagarikapi')
+    host = os.getenv('MYSQL_HOST', os.getenv('DB_HOST', 'localhost'))
+    port = int(os.getenv('MYSQL_PORT', os.getenv('DB_PORT', 3306)))
+    user = os.getenv('MYSQL_USER', os.getenv('DB_USER', 'root'))
+    password = os.getenv('MYSQL_PASSWORD', os.getenv('DB_PASSWORD', ''))
+    database = os.getenv('MYSQL_DATABASE', os.getenv('DB_NAME', 'nagarikapi'))
     ssl_ca = os.getenv('SSL_CA', '')
 
     if user and password and host and database:
@@ -39,3 +39,11 @@ class Config:
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
     GOOGLE_APPLICATION_CREDENTIALS = os.getenv('GOOGLE_APPLICATION_CREDENTIALS', 'google_vision.json')
     APP_URL = os.getenv('APP_URL', 'http://localhost:5000')
+    
+    # For compatibility with app/database.py
+    MYSQL_HOST = os.getenv('MYSQL_HOST', os.getenv('DB_HOST', ''))
+    MYSQL_PORT = os.getenv('MYSQL_PORT', os.getenv('DB_PORT', 3306))
+    MYSQL_USER = os.getenv('MYSQL_USER', os.getenv('DB_USER', ''))
+    MYSQL_PASSWORD = os.getenv('MYSQL_PASSWORD', os.getenv('DB_PASSWORD', ''))
+    MYSQL_DATABASE = os.getenv('MYSQL_DATABASE', os.getenv('DB_NAME', ''))
+    SQLITE_PATH = os.path.join(BASE_DIR, 'nagarikapi.db')

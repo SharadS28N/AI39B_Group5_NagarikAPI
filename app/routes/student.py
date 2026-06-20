@@ -4,6 +4,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 from app.models import KYCRequest, StudentRecord, AuditLog
+from app.extensions import db
 from app.services.ocr_service import extract_student_id, extract_national_id
 from app.services.face_service import compare_faces_simple
 
@@ -28,31 +29,35 @@ def verify():
             return render_template('pages/student/verify.html')
 
         case = KYCRequest(
-            user_id=current_user.id,
-            company_id=current_user.company_id,
-            status='processing',
-            verification_type='student'
-        )
-        db.session.add(case)
-        db.session.flush()
+        user_id=current_user.id,
+        company_id=current_user.company_id,
+        status='processing',
+        verification_type='student'
+    )
+    db.session.add(case)
+    db.session.flush()
 
-        upload_dir = current_app.config.get('UPLOAD_FOLDER', 'app/static/uploads')
+    upload_dir = current_app.config.get('UPLOAD_FOLDER', 'app/static/uploads')
+    id_dir = os.path.join(upload_dir, 'ids')
+    selfie_dir = os.path.join(upload_dir, 'selfies')
+    os.makedirs(id_dir, exist_ok=True)
+    os.makedirs(selfie_dir, exist_ok=True)
 
-        # Save national ID
-        nid_path = os.path.join(upload_dir, 'ids', f"nid_{case.id}.jpg")
-        national_id.save(nid_path)
-        case.id_image_path = nid_path
+    # Save national ID
+    nid_path = os.path.join(id_dir, f"nid_{case.id}.jpg")
+    national_id.save(nid_path)
+    case.id_image_path = nid_path
 
-        # Save student ID
-        sid_path = os.path.join(upload_dir, 'ids', f"sid_{case.id}.jpg")
-        student_id.save(sid_path)
+    # Save student ID
+    sid_path = os.path.join(id_dir, f"sid_{case.id}.jpg")
+    student_id.save(sid_path)
 
-        # Save selfie
-        selfie_path = None
-        if selfie and allowed_file(selfie.filename):
-            selfie_path = os.path.join(upload_dir, 'selfies', f"selfie_{case.id}.jpg")
-            selfie.save(selfie_path)
-            case.selfie_path = selfie_path
+    # Save selfie
+    selfie_path = None
+    if selfie and allowed_file(selfie.filename):
+        selfie_path = os.path.join(selfie_dir, f"selfie_{case.id}.jpg")
+        selfie.save(selfie_path)
+        case.selfie_path = selfie_path
 
         # OCR national ID
         nid_result = extract_national_id(nid_path)

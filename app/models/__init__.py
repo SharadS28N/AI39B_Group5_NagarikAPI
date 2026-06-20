@@ -1,6 +1,6 @@
 import secrets
 import hashlib
-from datetime import datetime
+from datetime import datetime, timedelta
 from app.extensions import db, bcrypt
 from flask_login import UserMixin
 
@@ -43,8 +43,13 @@ class Company(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     api_keys = db.relationship('APIKey', backref='company', lazy=True)
-    requests = db.relationship('KYCRequest', backref='institution', lazy=True,
-                                foreign_keys='KYCRequest.company_id')
+    # Use consistent relationship names, keep institution as an alias
+    kyc_requests = db.relationship('KYCRequest', back_populates='company', lazy=True,
+                                   foreign_keys='KYCRequest.company_id')
+    # Alias for backward compatibility
+    @property
+    def requests(self):
+        return self.kyc_requests
 
 
 class APIKey(db.Model):
@@ -70,6 +75,12 @@ class KYCRequest(db.Model):
                         default=lambda: f"KYC-{secrets.token_hex(4).upper()}")
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     company_id = db.Column(db.Integer, db.ForeignKey('companies.id'), nullable=True)
+    # Use back_populates for relationships
+    company = db.relationship('Company', back_populates='kyc_requests', foreign_keys=[company_id])
+    # Alias for backward compatibility
+    @property
+    def institution(self):
+        return self.company
 
     # Verification type
     verification_type = db.Column(db.String(20), default='kyc')
@@ -163,13 +174,22 @@ def seed_demo_data():
     if User.query.count() > 0:
         return
 
-    company = Company(
+    # Create companies
+    company1 = Company(
         name='Bank Nepal',
         registration_number='BN-001'
     )
-    db.session.add(company)
+    db.session.add(company1)
+    
+    company2 = Company(
+        name='Nepal Fintech',
+        registration_number='NF-002'
+    )
+    db.session.add(company2)
+    
     db.session.flush()
 
+    # Create admin user
     admin = User(
         full_name='Superuser Admin',
         email='admin@nagarikapi.com',
@@ -178,22 +198,196 @@ def seed_demo_data():
     admin.set_password('Admin123')
     db.session.add(admin)
 
-    company_admin = User(
-        full_name='Company Admin',
+    # Create company admins
+    company_admin1 = User(
+        full_name='Rajesh Kumar',
         email='hr@banknepal.com',
         role='company_admin',
-        company_id=company.id
+        company_id=company1.id
     )
-    company_admin.set_password('CompanyAdmin123')
-    db.session.add(company_admin)
+    company_admin1.set_password('CompanyAdmin123')
+    db.session.add(company_admin1)
+    
+    company_admin2 = User(
+        full_name='Sita Shrestha',
+        email='admin@nepalfintech.com',
+        role='company_admin',
+        company_id=company2.id
+    )
+    company_admin2.set_password('CompanyAdmin123')
+    db.session.add(company_admin2)
 
-    end_user = User(
-        full_name='End User',
-        email='user@example.com',
+    # Create end users
+    end_user1 = User(
+        full_name='Ram Bahadur',
+        email='ram@example.com',
         role='user',
-        company_id=company.id
+        company_id=company1.id
     )
-    end_user.set_password('User123')
-    db.session.add(end_user)
+    end_user1.set_password('User123')
+    db.session.add(end_user1)
+    
+    end_user2 = User(
+        full_name='Gita Rai',
+        email='gita@example.com',
+        role='user',
+        company_id=company2.id
+    )
+    end_user2.set_password('User123')
+    db.session.add(end_user2)
+    
+    # Create demo API keys
+    api_key1 = APIKey(
+        company_id=company1.id,
+        name='Production Key',
+        is_active=True
+    )
+    db.session.add(api_key1)
+    
+    api_key2 = APIKey(
+        company_id=company2.id,
+        name='Development Key',
+        is_active=True
+    )
+    db.session.add(api_key2)
+    
+    db.session.flush()
+    
+    # Create demo KYC cases
+    # Verified case
+    kyc1 = KYCRequest(
+        case_ref='KYC-2026-0001',
+        user_id=end_user1.id,
+        company_id=company1.id,
+        verification_type='kyc',
+        document_type='national_id',
+        full_name='Ram Bahadur',
+        date_of_birth='1990-05-15',
+        id_number='1234567890123',
+        address='Kathmandu, Nepal',
+        ocr_confidence=94.5,
+        face_match_score=88.2,
+        overall_score=91.3,
+        status='verified',
+        is_flagged=False,
+        created_at=datetime.utcnow() - timedelta(hours=2)
+    )
+    db.session.add(kyc1)
+    
+    # Pending case
+    kyc2 = KYCRequest(
+        case_ref='KYC-2026-0002',
+        user_id=end_user2.id,
+        company_id=company2.id,
+        verification_type='kyc',
+        document_type='national_id',
+        full_name='Gita Rai',
+        date_of_birth='1995-11-22',
+        id_number='9876543210987',
+        address='Pokhara, Nepal',
+        ocr_confidence=78.3,
+        face_match_score=72.1,
+        overall_score=75.2,
+        status='pending',
+        is_flagged=False,
+        created_at=datetime.utcnow() - timedelta(minutes=15)
+    )
+    db.session.add(kyc2)
+    
+    # Rejected case
+    kyc3 = KYCRequest(
+        case_ref='KYC-2026-0003',
+        user_id=end_user1.id,
+        company_id=company1.id,
+        verification_type='kyc',
+        document_type='national_id',
+        full_name='Unknown',
+        date_of_birth='',
+        id_number='',
+        address='',
+        ocr_confidence=12.5,
+        face_match_score=5.3,
+        overall_score=8.9,
+        status='rejected',
+        is_flagged=True,
+        flag_reason='Document could not be verified',
+        created_at=datetime.utcnow() - timedelta(days=1)
+    )
+    db.session.add(kyc3)
+    
+    # Student verification case
+    kyc4 = KYCRequest(
+        case_ref='KYC-2026-0004',
+        user_id=end_user2.id,
+        company_id=company2.id,
+        verification_type='student',
+        document_type='national_id',
+        full_name='Gita Rai',
+        date_of_birth='1995-11-22',
+        id_number='9876543210987',
+        institution_name='Tribhuvan University',
+        student_id='TU-2022-05432',
+        program='BSc Computer Science',
+        enrollment_year='2022',
+        ocr_confidence=91.8,
+        face_match_score=85.6,
+        overall_score=88.7,
+        status='verified',
+        is_flagged=False,
+        created_at=datetime.utcnow() - timedelta(days=2)
+    )
+    db.session.add(kyc4)
+    
+    # Manual review case
+    kyc5 = KYCRequest(
+        case_ref='KYC-2026-0005',
+        user_id=end_user1.id,
+        company_id=company1.id,
+        verification_type='kyc',
+        document_type='national_id',
+        full_name='Ram Bahadur',
+        date_of_birth='1990-05-15',
+        id_number='1234567890123',
+        address='Kathmandu, Nepal',
+        ocr_confidence=65.4,
+        face_match_score=68.9,
+        overall_score=67.1,
+        status='manual_review',
+        is_flagged=True,
+        flag_reason='Low confidence score',
+        created_at=datetime.utcnow() - timedelta(hours=5)
+    )
+    db.session.add(kyc5)
+    
+    # Create audit logs
+    log1 = AuditLog(
+        case_id=kyc1.id,
+        user_id=admin.id,
+        action='case.verified',
+        detail='Case KYC-2026-0001 verified successfully',
+        ip_address='192.168.1.100',
+        created_at=datetime.utcnow() - timedelta(hours=1)
+    )
+    db.session.add(log1)
+    
+    log2 = AuditLog(
+        case_id=kyc4.id,
+        user_id=company_admin2.id,
+        action='case.verified',
+        detail='Student verification KYC-2026-0004 verified',
+        ip_address='10.0.0.5',
+        created_at=datetime.utcnow() - timedelta(days=1, hours=23)
+    )
+    db.session.add(log2)
+    
+    log3 = AuditLog(
+        case_id=kyc3.id,
+        user_id=admin.id,
+        action='case.rejected',
+        detail='Case KYC-2026-0003 rejected due to invalid document',
+        ip_address='192.168.1.101',
+        created_at=datetime.utcnow() - timedelta(days=1, hours=12)
+    )
+    db.session.add(log3)
 
     db.session.commit()

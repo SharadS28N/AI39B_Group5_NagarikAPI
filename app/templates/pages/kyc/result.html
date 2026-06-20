@@ -87,7 +87,7 @@
             {% endif %}
 
             <form method="POST" action="{{ url_for('kyc.flag_case', case_id=case.id) }}">
-                {{ csrf_token() }}
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <button type="submit" class="w-full bg-gray-800 text-white py-3 px-6 rounded-xl font-semibold hover:bg-gray-700 transition-all">
                     {% if case.is_flagged %}Unflag Case{% else %}Flag for Review{% endif %}
                 </button>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time NID Scanner - NagarikAPI Demo</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>NID Scanner</h1>
+            <p>Scan your National ID card in real-time</p>
+        </header>
+        
+        <div class="scanner-container">
+            <div class="video-wrapper">
+                <video id="video" autoplay playsinline></video>
+                <canvas id="canvas" class="hidden"></canvas>
+                <div class="scan-overlay">
+                    <div class="corner top-left"></div>
+                    <div class="corner top-right"></div>
+                    <div class="corner bottom-left"></div>
+                    <div class="corner bottom-right"></div>
+                    <div class="scan-line"></div>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button id="startBtn" class="btn btn-primary">Start Camera</button>
+                <button id="captureBtn" class="btn btn-success" disabled>Capture & Scan</button>
+                <button id="stopBtn" class="btn btn-secondary" disabled>Stop Camera</button>
+            </div>
+        </div>
+        
+        <div class="results" id="results">
+            <h2>Scanned Data</h2>
+            <div class="result-grid">
+                <div class="result-item">
+                    <span class="label">Full Name</span>
+                    <span class="value" id="fullName">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="label">NID Number</span>
+                    <span class="value" id="idNumber">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="label">Date of Birth</span>
+                    <span class="value" id="dob">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="label">Address</span>
+                    <span class="value" id="address">-</span>
+                </div>
+            </div>
+            <button id="verifyBtn" class="btn btn-primary" disabled>Verify with NagarikAPI</button>
+        </div>
+    </div>
+    
+    <script src="scanner.js"></script>
+</body>
+</html>

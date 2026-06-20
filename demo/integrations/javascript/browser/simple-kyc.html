@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple KYC Verification - NagarikAPI Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        }
+        
+        body {
+            background: #050505;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+        }
+        
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        p {
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 2rem;
+            font-size: 0.875rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+        
+        input[type="file"] {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            color: #ffffff;
+            cursor: pointer;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            color: #ffffff;
+            font-size: 0.875rem;
+        }
+        
+        button {
+            width: 100%;
+            background: #8b5cf6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.875rem 1.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        button:hover {
+            background: #7c3aed;
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .result {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .result h3 {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .result-item {
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .result-label {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.75rem;
+        }
+        
+        .result-value {
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 2rem;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #8b5cf6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Simple KYC Verification</h1>
+        <p>Upload your National ID and selfie to verify your identity.</p>
+        
+        <form id="kycForm">
+            <div class="form-group">
+                <label for="apiKey">API Key</label>
+                <input type="text" id="apiKey" placeholder="Enter your NagarikAPI key" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="nidImage">National ID Image</label>
+                <input type="file" id="nidImage" accept="image/*" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="selfieImage">Selfie (Optional)</label>
+                <input type="file" id="selfieImage" accept="image/*">
+            </div>
+            
+            <button type="submit" id="submitBtn">Verify Identity</button>
+        </form>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Verifying your identity...</p>
+        </div>
+        
+        <div class="result" id="result">
+            <h3>Verification Result</h3>
+            <div class="result-item">
+                <span class="result-label">Case Reference</span>
+                <span class="result-value" id="caseRef">-</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Status</span>
+                <span class="result-value" id="status">-</span>
+            </div>
+            <div class="result-item" id="nameItem" style="display: none;">
+                <span class="result-label">Full Name</span>
+                <span class="result-value" id="fullName">-</span>
+            </div>
+            <div class="result-item" id="nidItem" style="display: none;">
+                <span class="result-label">NID Number</span>
+                <span class="result-value" id="idNumber">-</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = "https://api.nagarikapi.com/v1";  // Replace with your API base URL
+        
+        const form = document.getElementById('kycForm');
+        const loading = document.getElementById('loading');
+        const result = document.getElementById('result');
+        const submitBtn = document.getElementById('submitBtn');
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const apiKey = document.getElementById('apiKey').value;
+            const nidImage = document.getElementById('nidImage').files[0];
+            const selfieImage = document.getElementById('selfieImage').files[0];
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            loading.style.display = 'block';
+            result.style.display = 'none';
+            
+            // Prepare form data
+            const formData = new FormData();
+            formData.append('nid_image', nidImage);
+            if (selfieImage) {
+                formData.append('selfie', selfieImage);
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/kyc/verify`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Verification failed');
+                }
+                
+                const data = await response.json();
+                
+                // Show result
+                document.getElementById('caseRef').textContent = data.case_ref;
+                document.getElementById('status').textContent = data.status;
+                
+                if (data.extracted_data) {
+                    if (data.extracted_data.full_name) {
+                        document.getElementById('fullName').textContent = data.extracted_data.full_name;
+                        document.getElementById('nameItem').style.display = 'flex';
+                    }
+                    if (data.extracted_data.id_number) {
+                        document.getElementById('idNumber').textContent = data.extracted_data.id_number;
+                        document.getElementById('nidItem').style.display = 'flex';
+                    }
+                }
+                
+                result.style.display = 'block';
+                
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                loading.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

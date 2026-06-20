@@ -4,6 +4,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 from app.models import KYCRequest, AuditLog
+from app.extensions import db
 from app.services.ocr_service import extract_national_id
 from app.services.face_service import compare_faces_simple
 
@@ -27,34 +28,34 @@ def upload():
             return render_template('pages/kyc/upload.html')
 
         # Create case
-        case = KYCRequest(
-            user_id=current_user.id,
-            company_id=current_user.company_id,
-            status='processing',
-            verification_type='kyc'
-        )
-        db.session.add(case)
-        db.session.flush()
+    case = KYCRequest(
+        user_id=current_user.id,
+        company_id=current_user.company_id,
+        status='processing',
+        verification_type='kyc'
+    )
+    db.session.add(case)
+    db.session.flush()
 
-        # Save ID image
-        upload_dir = current_app.config.get('UPLOAD_FOLDER', 'app/static/uploads')
-        id_dir = os.path.join(upload_dir, 'ids')
-        os.makedirs(id_dir, exist_ok=True)
+    # Save ID image
+    upload_dir = current_app.config.get('UPLOAD_FOLDER', 'app/static/uploads')
+    id_dir = os.path.join(upload_dir, 'ids')
+    selfie_dir = os.path.join(upload_dir, 'selfies')
+    os.makedirs(id_dir, exist_ok=True)
+    os.makedirs(selfie_dir, exist_ok=True)
 
-        id_filename = f"id_{case.id}_{secrets.token_hex(4)}.jpg"
-        id_path = os.path.join(id_dir, id_filename)
-        id_file.save(id_path)
-        case.id_image_path = id_path
+    id_filename = f"id_{case.id}_{secrets.token_hex(4)}.jpg"
+    id_path = os.path.join(id_dir, id_filename)
+    id_file.save(id_path)
+    case.id_image_path = id_path
 
-        # Save selfie if provided
-        selfie_path = None
-        if selfie and allowed_file(selfie.filename):
-            selfie_dir = os.path.join(upload_dir, 'selfies')
-            os.makedirs(selfie_dir, exist_ok=True)
-            selfie_filename = f"selfie_{case.id}_{secrets.token_hex(4)}.jpg"
-            selfie_path = os.path.join(selfie_dir, selfie_filename)
-            selfie.save(selfie_path)
-            case.selfie_path = selfie_path
+    # Save selfie if provided
+    selfie_path = None
+    if selfie and allowed_file(selfie.filename):
+        selfie_filename = f"selfie_{case.id}_{secrets.token_hex(4)}.jpg"
+        selfie_path = os.path.join(selfie_dir, selfie_filename)
+        selfie.save(selfie_path)
+        case.selfie_path = selfie_path
 
         # Run OCR
         ocr_result = extract_national_id(id_path)

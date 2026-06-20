@@ -169,7 +169,7 @@
       <!-- Form Side -->
       <div class="ng-contact-form" data-animate style="--reveal-delay: 100ms">
         <form method="POST" action="{{ url_for('main.contact') }}">
-          {{ csrf_token() }}
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
             <div class="ng-form-group">
               <label>First name</label>

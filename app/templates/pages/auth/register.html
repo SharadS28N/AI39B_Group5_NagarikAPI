@@ -143,7 +143,7 @@
         <p class="ng-auth-subtitle">Join the foundation of trust in Nepal.</p>
 
         <form method="POST" action="{{ url_for('auth.register') }}">
-            {{ csrf_token() }}
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="ng-form-group">
                 <label>Full Name</label>
                 <input type="text" name="full_name" placeholder="Your Name" required>

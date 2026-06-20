@@ -60,12 +60,12 @@
                         <div class="bg-black border border-white/10 rounded-lg p-3 flex items-center justify-between">
                             <span class="text-gray-500 font-mono text-sm truncate mr-2">{{ key.mask() }}</span>
                             <div class="flex gap-2">
-                                <button class="text-gray-400 hover:text-white transition-colors">
+                                <button class="copy-api-key text-gray-400 hover:text-white transition-colors" data-api-key="{{ key.key }}">
                                     <i data-lucide="copy" class="w-4 h-4"></i>
                                 </button>
                                 {% if key.is_active %}
                                 <form method="POST" action="{{ url_for('dashboard.revoke_api_key', key_id=key.id) }}" class="inline">
-                                    {{ csrf_token() }}
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                     <button type="submit" class="text-red-400 hover:text-red-300 transition-colors">
                                         <i data-lucide="trash-2" class="w-4 h-4"></i>
                                     </button>
@@ -79,7 +79,7 @@
                         </div>
                         {% endfor %}
                         <form method="POST" action="{{ url_for('dashboard.generate_api_key') }}">
-                            {{ csrf_token() }}
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <div class="flex gap-2">
                                 <input type="text" name="name" placeholder="Key name" class="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm">
                                 <button type="submit" class="bg-primary text-white text-xs font-bold px-4 py-2 rounded-lg hover:opacity-90">Generate</button>
@@ -97,7 +97,8 @@
                                 <span class="text-white">{{ stats.total }} / 10,000</span>
                             </div>
                             <div class="w-full h-1.5 bg-gray-900 rounded-full overflow-hidden">
-                                <div class="h-full bg-primary" style="width: {{ (stats.total / 100) if stats.total < 100 else 100 }}%"></div>
+                                {% set usage_percent = (stats.total / 10000 * 100) if stats.total < 10000 else 100 %}
+                                <div class="h-full bg-primary" style="width: {{ usage_percent }}%"></div>
                             </div>
                         </div>
                         <p class="text-[10px] text-gray-500 italic">Success rate: {{ stats.success_rate }}%</p>
@@ -190,6 +191,30 @@
                 const url = row.getAttribute('data-url');
                 if (url) {
                     window.location.href = url;
+                }
+            });
+        });
+
+        // Handle API key copy buttons
+        const copyButtons = document.querySelectorAll('.copy-api-key');
+        copyButtons.forEach(button => {
+            button.addEventListener('click', async (e) => {
+                const apiKey = button.getAttribute('data-api-key');
+                try {
+                    await navigator.clipboard.writeText(apiKey);
+                    // Show temporary success feedback
+                    const originalIcon = button.innerHTML;
+                    button.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i>';
+                    button.classList.add('text-green-400');
+                    button.classList.remove('text-gray-400');
+                    setTimeout(() => {
+                        button.innerHTML = originalIcon;
+                        button.classList.remove('text-green-400');
+                        button.classList.add('text-gray-400');
+                        lucide.createIcons();
+                    }, 2000);
+                } catch (err) {
+                    console.error('Failed to copy:', err);
                 }
             });
         });

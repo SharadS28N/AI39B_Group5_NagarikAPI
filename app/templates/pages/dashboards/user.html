@@ -131,7 +131,7 @@
                                   {% else %} badge-pending
                                   {% endif %}">{{ req.status }}</span>
                             </td>
-                            <td>{{ req.institution.name if req.institution else 'Self' }}</td>
+                            <td>{{ req.company.name if req.company else 'Self' }}</td>
                             <td class="text-gray-500 text-sm">{{ req.created_at.strftime('%b %d, %Y') }}</td>
                             <td>
                                 <a href="{{ url_for('kyc.result', case_id=req.id) }}" class="p-2 hover:bg-gray-800 rounded-lg transition-colors text-gray-400 hover:text-white">
