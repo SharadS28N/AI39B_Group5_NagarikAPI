@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, jsonify, redirect, url_for, flash
 from flask_login import login_required, current_user
-from app.models import KYCRequest, User, Company, APIKey, AuditLog
+from app.models import KYCRequest, User, Company, APIKey, AuditLog, DataAccessPermission, DataAccessLog, GovernmentCitizenRecord
 from app.extensions import db
 from sqlalchemy import func
 from datetime import datetime, timedelta
@@ -89,6 +89,16 @@ def company():
         company_id=current_user.company_id, status='verified'
     ).count()
 
+    # Get data access permissions
+    data_permissions = DataAccessPermission.query.filter_by(
+        company_id=current_user.company_id, is_active=True
+    ).order_by(DataAccessPermission.created_at.desc()).limit(20).all()
+
+    # Get data access logs
+    data_access_logs = DataAccessLog.query.filter_by(
+        company_id=current_user.company_id
+    ).order_by(DataAccessLog.created_at.desc()).limit(20).all()
+
     stats = {
         'total': total,
         'verified': verified,
@@ -99,7 +109,9 @@ def company():
                            company=company,
                            api_keys=api_keys,
                            cases=cases,
-                           stats=stats)
+                           stats=stats,
+                           data_permissions=data_permissions,
+                           data_access_logs=data_access_logs)
 
 
 @dashboard_bp.route('/user')
@@ -138,4 +150,17 @@ def revoke_api_key(key_id):
     key.is_active = False
     db.session.commit()
     flash('API key revoked!', 'warning')
+    return redirect(url_for('dashboard.company'))
+
+
+@dashboard_bp.route('/data-access/<int:perm_id>/revoke', methods=['POST'])
+@login_required
+def revoke_data_access(perm_id):
+    perm = DataAccessPermission.query.get_or_404(perm_id)
+    if perm.company_id != current_user.company_id and current_user.role != 'admin':
+        flash('Unauthorized', 'danger')
+        return redirect(url_for('dashboard.company'))
+    perm.is_active = False
+    db.session.commit()
+    flash('Data access revoked!', 'warning')
     return redirect(url_for('dashboard.company'))

@@ -3,7 +3,7 @@ import secrets
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, current_app
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
-from app.models import KYCRequest, AuditLog
+from app.models import KYCRequest, AuditLog, GovernmentCitizenRecord, DataAccessPermission
 from app.extensions import db
 from app.services.ocr_service import extract_national_id
 from app.services.face_service import compare_faces_simple
@@ -58,40 +58,66 @@ def upload():
         case.selfie_path = selfie_path
 
         # Run OCR
-        ocr_result = extract_national_id(id_path)
+    ocr_result = extract_national_id(id_path)
 
-        if ocr_result.get('success'):
-            case.full_name = ocr_result.get('full_name')
-            case.date_of_birth = ocr_result.get('date_of_birth')
-            case.id_number = ocr_result.get('id_number')
-            case.address = ocr_result.get('address')
-            case.citizenship_no = ocr_result.get('citizenship_no')
-            case.issue_date = ocr_result.get('issue_date')
-            case.issue_district = ocr_result.get('issue_district')
-            case.ocr_confidence = ocr_result.get('confidence', 0.0)
-            case.raw_ocr_data = {'raw_text': ocr_result.get('raw_text', '')}
+    # Check against fake government database
+    government_match_found = False
+    government_record = None
+    if ocr_result.get('success'):
+        case.full_name = ocr_result.get('full_name')
+        case.date_of_birth = ocr_result.get('date_of_birth')
+        case.id_number = ocr_result.get('id_number')
+        case.address = ocr_result.get('address')
+        case.citizenship_no = ocr_result.get('citizenship_no')
+        case.issue_date = ocr_result.get('issue_date')
+        case.issue_district = ocr_result.get('issue_district')
+        case.ocr_confidence = ocr_result.get('confidence', 0.0)
+        case.raw_ocr_data = {'raw_text': ocr_result.get('raw_text', '')}
+        
+        # Check government database
+        if case.id_number:
+            government_record = GovernmentCitizenRecord.query.filter_by(id_number=case.id_number).first()
+            if not government_record and case.citizenship_no:
+                government_record = GovernmentCitizenRecord.query.filter_by(citizenship_no=case.citizenship_no).first()
+            
+            if government_record and government_record.is_active:
+                government_match_found = True
 
-        # Run face match if selfie provided
-        face_score = 0.0
-        if selfie_path:
-            face_result = compare_faces_simple(id_path, selfie_path)
-            face_score = face_result.get('score', 0.0)
-            case.face_match_score = face_score
+    # Run face match if selfie provided
+    face_score = 0.0
+    if selfie_path:
+        face_result = compare_faces_simple(id_path, selfie_path)
+        face_score = face_result.get('score', 0.0)
+        case.face_match_score = face_score
 
-        # Calculate overall score
-        ocr_weight = 0.6
-        face_weight = 0.4
-        case.overall_score = round(
-            (case.ocr_confidence * ocr_weight) + (face_score * face_weight), 3
-        )
+    # Calculate overall score - government match is a big factor!
+    ocr_weight = 0.3
+    face_weight = 0.2
+    government_match_weight = 0.5
+    base_score = (case.ocr_confidence * ocr_weight) + (face_score * face_weight)
+    government_bonus = 1.0 if government_match_found else 0.0
+    case.overall_score = round(
+        base_score + (government_bonus * government_match_weight), 3
+    )
 
-        # Auto-decide status
-        if case.overall_score >= 0.75:
-            case.status = 'verified'
-        elif case.overall_score >= 0.5:
-            case.status = 'manual_review'
-        else:
-            case.status = 'rejected'
+    # Auto-decide status - government match makes it verified!
+    if government_match_found and case.ocr_confidence >= 0.5:
+        case.status = 'verified'
+        # Create data access permission for the company
+        if current_user.company_id:
+            permission = DataAccessPermission(
+                company_id=current_user.company_id,
+                citizen_id=government_record.id,
+                user_id=current_user.id,
+                granted_by=current_user.id,
+                access_type='full',
+                is_active=True
+            )
+            db.session.add(permission)
+    elif case.overall_score >= 0.7:
+        case.status = 'manual_review'
+    else:
+        case.status = 'rejected'
 
         db.session.commit()
 

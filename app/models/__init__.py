@@ -170,6 +170,59 @@ class StudentRecord(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 
+class GovernmentCitizenRecord(db.Model):
+    """Fake government database citizen record"""
+    __tablename__ = 'government_citizen_records'
+    id = db.Column(db.Integer, primary_key=True)
+    id_number = db.Column(db.String(50), unique=True, nullable=False)  # National ID number
+    citizenship_no = db.Column(db.String(50), unique=True, nullable=True)
+    full_name = db.Column(db.String(200), nullable=False)
+    date_of_birth = db.Column(db.String(30), nullable=False)
+    gender = db.Column(db.String(10), nullable=True)
+    address = db.Column(db.Text, nullable=True)
+    issue_date = db.Column(db.String(30), nullable=True)
+    issue_district = db.Column(db.String(100), nullable=True)
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class DataAccessPermission(db.Model):
+    """Tracks which companies have access to which citizen data"""
+    __tablename__ = 'data_access_permissions'
+    id = db.Column(db.Integer, primary_key=True)
+    company_id = db.Column(db.Integer, db.ForeignKey('companies.id'), nullable=False)
+    citizen_id = db.Column(db.Integer, db.ForeignKey('government_citizen_records.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)  # Which user's data is shared
+    granted_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)  # Who granted access
+    access_type = db.Column(db.String(50), default='full')  # 'full', 'basic', 'read-only'
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    expires_at = db.Column(db.DateTime, nullable=True)
+
+    company = db.relationship('Company', foreign_keys=[company_id])
+    citizen = db.relationship('GovernmentCitizenRecord', foreign_keys=[citizen_id])
+
+
+class DataAccessLog(db.Model):
+    """Audit log for data access events"""
+    __tablename__ = 'data_access_logs'
+    id = db.Column(db.Integer, primary_key=True)
+    company_id = db.Column(db.Integer, db.ForeignKey('companies.id'), nullable=False)
+    api_key_id = db.Column(db.Integer, db.ForeignKey('api_keys.id'), nullable=False)
+    citizen_id = db.Column(db.Integer, db.ForeignKey('government_citizen_records.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)  # Who's data was accessed
+    accessed_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)  # Who accessed it (if from portal)
+    access_type = db.Column(db.String(50), nullable=False)  # 'read', 'write', 'verify', etc.
+    data_accessed = db.Column(db.JSON, nullable=True)  # What data was accessed
+    ip_address = db.Column(db.String(45), nullable=True)
+    user_agent = db.Column(db.String(255), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    company = db.relationship('Company', foreign_keys=[company_id])
+    api_key = db.relationship('APIKey', foreign_keys=[api_key_id])
+    citizen = db.relationship('GovernmentCitizenRecord', foreign_keys=[citizen_id])
+
+
 def seed_demo_data():
     if User.query.count() > 0:
         return
@@ -217,24 +270,15 @@ def seed_demo_data():
     company_admin2.set_password('CompanyAdmin123')
     db.session.add(company_admin2)
 
-    # Create end users
-    end_user1 = User(
-        full_name='Ram Bahadur',
-        email='ram@example.com',
+    # Create Sharad's user account
+    sharad_user = User(
+        full_name='Sharad Bhandari',
+        email='sharad.bhandari222@gmail.com',
         role='user',
         company_id=company1.id
     )
-    end_user1.set_password('User123')
-    db.session.add(end_user1)
-    
-    end_user2 = User(
-        full_name='Gita Rai',
-        email='gita@example.com',
-        role='user',
-        company_id=company2.id
-    )
-    end_user2.set_password('User123')
-    db.session.add(end_user2)
+    sharad_user.set_password('nayamill0')
+    db.session.add(sharad_user)
     
     # Create demo API keys
     api_key1 = APIKey(
@@ -253,141 +297,19 @@ def seed_demo_data():
     
     db.session.flush()
     
-    # Create demo KYC cases
-    # Verified case
-    kyc1 = KYCRequest(
-        case_ref='KYC-2026-0001',
-        user_id=end_user1.id,
-        company_id=company1.id,
-        verification_type='kyc',
-        document_type='national_id',
-        full_name='Ram Bahadur',
-        date_of_birth='1990-05-15',
-        id_number='1234567890123',
-        address='Kathmandu, Nepal',
-        ocr_confidence=94.5,
-        face_match_score=88.2,
-        overall_score=91.3,
-        status='verified',
-        is_flagged=False,
-        created_at=datetime.utcnow() - timedelta(hours=2)
-    )
-    db.session.add(kyc1)
-    
-    # Pending case
-    kyc2 = KYCRequest(
-        case_ref='KYC-2026-0002',
-        user_id=end_user2.id,
-        company_id=company2.id,
-        verification_type='kyc',
-        document_type='national_id',
-        full_name='Gita Rai',
-        date_of_birth='1995-11-22',
-        id_number='9876543210987',
-        address='Pokhara, Nepal',
-        ocr_confidence=78.3,
-        face_match_score=72.1,
-        overall_score=75.2,
-        status='pending',
-        is_flagged=False,
-        created_at=datetime.utcnow() - timedelta(minutes=15)
-    )
-    db.session.add(kyc2)
-    
-    # Rejected case
-    kyc3 = KYCRequest(
-        case_ref='KYC-2026-0003',
-        user_id=end_user1.id,
-        company_id=company1.id,
-        verification_type='kyc',
-        document_type='national_id',
-        full_name='Unknown',
-        date_of_birth='',
-        id_number='',
+    # Create ONLY Sharad's government citizen record
+    sharad_citizen = GovernmentCitizenRecord(
+        id_number='026-207-7515',
+        full_name='Sharad Bhandari',
+        date_of_birth='2006-11-03',
+        gender='Male',
         address='',
-        ocr_confidence=12.5,
-        face_match_score=5.3,
-        overall_score=8.9,
-        status='rejected',
-        is_flagged=True,
-        flag_reason='Document could not be verified',
-        created_at=datetime.utcnow() - timedelta(days=1)
+        issue_date='2024-06-11',
+        issue_district='',
+        is_active=True
     )
-    db.session.add(kyc3)
+    db.session.add(sharad_citizen)
     
-    # Student verification case
-    kyc4 = KYCRequest(
-        case_ref='KYC-2026-0004',
-        user_id=end_user2.id,
-        company_id=company2.id,
-        verification_type='student',
-        document_type='national_id',
-        full_name='Gita Rai',
-        date_of_birth='1995-11-22',
-        id_number='9876543210987',
-        institution_name='Tribhuvan University',
-        student_id='TU-2022-05432',
-        program='BSc Computer Science',
-        enrollment_year='2022',
-        ocr_confidence=91.8,
-        face_match_score=85.6,
-        overall_score=88.7,
-        status='verified',
-        is_flagged=False,
-        created_at=datetime.utcnow() - timedelta(days=2)
-    )
-    db.session.add(kyc4)
-    
-    # Manual review case
-    kyc5 = KYCRequest(
-        case_ref='KYC-2026-0005',
-        user_id=end_user1.id,
-        company_id=company1.id,
-        verification_type='kyc',
-        document_type='national_id',
-        full_name='Ram Bahadur',
-        date_of_birth='1990-05-15',
-        id_number='1234567890123',
-        address='Kathmandu, Nepal',
-        ocr_confidence=65.4,
-        face_match_score=68.9,
-        overall_score=67.1,
-        status='manual_review',
-        is_flagged=True,
-        flag_reason='Low confidence score',
-        created_at=datetime.utcnow() - timedelta(hours=5)
-    )
-    db.session.add(kyc5)
-    
-    # Create audit logs
-    log1 = AuditLog(
-        case_id=kyc1.id,
-        user_id=admin.id,
-        action='case.verified',
-        detail='Case KYC-2026-0001 verified successfully',
-        ip_address='192.168.1.100',
-        created_at=datetime.utcnow() - timedelta(hours=1)
-    )
-    db.session.add(log1)
-    
-    log2 = AuditLog(
-        case_id=kyc4.id,
-        user_id=company_admin2.id,
-        action='case.verified',
-        detail='Student verification KYC-2026-0004 verified',
-        ip_address='10.0.0.5',
-        created_at=datetime.utcnow() - timedelta(days=1, hours=23)
-    )
-    db.session.add(log2)
-    
-    log3 = AuditLog(
-        case_id=kyc3.id,
-        user_id=admin.id,
-        action='case.rejected',
-        detail='Case KYC-2026-0003 rejected due to invalid document',
-        ip_address='192.168.1.101',
-        created_at=datetime.utcnow() - timedelta(days=1, hours=12)
-    )
-    db.session.add(log3)
+    db.session.flush()
 
     db.session.commit()

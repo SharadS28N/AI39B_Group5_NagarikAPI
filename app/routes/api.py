@@ -4,7 +4,7 @@ from functools import wraps
 from datetime import datetime
 from flask import Blueprint, request, jsonify, current_app
 from werkzeug.utils import secure_filename
-from app.models import APIKey, KYCRequest, AuditLog, Company, StudentRecord
+from app.models import APIKey, KYCRequest, AuditLog, Company, StudentRecord, GovernmentCitizenRecord, DataAccessPermission, DataAccessLog
 from app.extensions import db
 from app.services.ocr_service import extract_national_id, extract_student_id
 from app.services.face_service import compare_faces_simple
@@ -104,6 +104,16 @@ def verify_kyc():
         kyc_request.ocr_confidence = ocr_result.get('confidence', 0.0)
         kyc_request.raw_ocr_data = {'raw_text': ocr_result.get('raw_text', '')}
     
+    # Check government database
+    government_match_found = False
+    government_record = None
+    if kyc_request.id_number:
+        government_record = GovernmentCitizenRecord.query.filter_by(id_number=kyc_request.id_number).first()
+        if not government_record and kyc_request.citizenship_no:
+            government_record = GovernmentCitizenRecord.query.filter_by(citizenship_no=kyc_request.citizenship_no).first()
+        if government_record and government_record.is_active:
+            government_match_found = True
+    
     # Run face match
     face_score = 0.0
     if selfie_path:
@@ -111,17 +121,42 @@ def verify_kyc():
         face_score = face_result.get('score', 0.0)
         kyc_request.face_match_score = face_score
     
-    # Calculate overall score
-    ocr_weight = 0.6
-    face_weight = 0.4
+    # Calculate overall score - government match is a big factor!
+    ocr_weight = 0.3
+    face_weight = 0.2
+    government_match_weight = 0.5
+    base_score = (kyc_request.ocr_confidence * ocr_weight) + (face_score * face_weight)
+    government_bonus = 1.0 if government_match_found else 0.0
     kyc_request.overall_score = round(
-        (kyc_request.ocr_confidence * ocr_weight) + (face_score * face_weight), 3
+        base_score + (government_bonus * government_match_weight), 3
     )
     
-    # Auto-decide status
-    if kyc_request.overall_score >= 0.75:
+    # Auto-decide status - government match makes it verified!
+    if government_match_found and kyc_request.ocr_confidence >= 0.5:
         kyc_request.status = 'verified'
-    elif kyc_request.overall_score >= 0.5:
+        # Create data access permission
+        permission = DataAccessPermission(
+            company_id=request.api_key.company_id,
+            citizen_id=government_record.id,
+            access_type='full',
+            is_active=True
+        )
+        db.session.add(permission)
+        # Create data access log
+        data_log = DataAccessLog(
+            company_id=request.api_key.company_id,
+            api_key_id=request.api_key.id,
+            citizen_id=government_record.id,
+            access_type='verify',
+            data_accessed={
+                'full_name': government_record.full_name,
+                'id_number': government_record.id_number
+            },
+            ip_address=request.remote_addr,
+            user_agent=request.headers.get('User-Agent')
+        )
+        db.session.add(data_log)
+    elif kyc_request.overall_score >= 0.7:
         kyc_request.status = 'manual_review'
     else:
         kyc_request.status = 'rejected'

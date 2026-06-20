@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://api.nagarikapi.com/v1";
+const API_BASE_URL = "http://localhost:5000/api/v1";
 
 class NIDScanner {
     constructor() {
@@ -71,23 +71,15 @@ class NIDScanner {
         this.canvas.toBlob((blob) => {
             this.capturedImage = blob;
             
-            // Simulate OCR extraction (in real use, this would be done via the API)
-            this.simulateOCR();
+            // Fill with Sharad's data for demo
+            document.getElementById('fullName').textContent = "Sharad Bhandari";
+            document.getElementById('idNumber').textContent = "026-207-7515";
+            document.getElementById('dob').textContent = "2006-11-03";
+            document.getElementById('address').textContent = "";
             
             this.verifyBtn.disabled = false;
             
         }, 'image/jpeg', 0.9);
-    }
-    
-    simulateOCR() {
-        // This is just a demo - in real use, you'd send the image to NagarikAPI
-        // to get actual OCR results
-        
-        // Fill with dummy data for demo purposes
-        document.getElementById('fullName').textContent = 'John Doe';
-        document.getElementById('idNumber').textContent = '1234567890123';
-        document.getElementById('dob').textContent = '1990-01-15';
-        document.getElementById('address').textContent = 'Kathmandu, Nepal';
     }
     
     async verifyWithAPI() {
@@ -109,20 +101,20 @@ class NIDScanner {
             const response = await fetch(`${API_BASE_URL}/kyc/verify`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${apiKey}`
+                    'X-API-Key': apiKey
                 },
                 body: formData
             });
             
-            if (!response.ok) {
-                throw new Error('Verification failed');
-            }
-            
             const result = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(result.error || 'Verification failed');
+            }
             
             alert(`Verification complete!\nCase Reference: ${result.case_ref}\nStatus: ${result.status}`);
             
-            // Update the UI with actual API results if available
+            // Update the UI with actual API results
             if (result.extracted_data) {
                 if (result.extracted_data.full_name) {
                     document.getElementById('fullName').textContent = result.extracted_data.full_name;

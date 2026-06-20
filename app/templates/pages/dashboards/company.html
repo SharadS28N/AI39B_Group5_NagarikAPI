@@ -21,7 +21,7 @@
         display: inline-block;
         margin-right: 6px;
     }
-    .status-live { background: #00ff66; box-shadow: 0 0 10px rgba(0, 255, 102, 0.4); }
+    .status-live { background: #00ff66; box-shadow: 0 0 10px rgba(0,255,102,0.4); }
 </style>
 {% endblock %}
 
@@ -108,6 +108,61 @@
 
             <!-- Main Content -->
             <div class="lg:col-span-3 space-y-8">
+                <!-- Data Access Permissions -->
+                <div class="api-card overflow-hidden">
+                    <div class="p-6 border-b border-white/5 flex items-center justify-between">
+                        <h2 class="text-xl font-bold text-white">Data Access Permissions</h2>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="text-gray-500 text-[10px] uppercase tracking-widest border-b border-white/5">
+                                    <th class="px-6 py-4 font-bold">Citizen</th>
+                                    <th class="px-6 py-4 font-bold">Access Type</th>
+                                    <th class="px-6 py-4 font-bold">Granted</th>
+                                    <th class="px-6 py-4 font-bold">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-white text-sm divide-y divide-white/5">
+                                {% for perm in data_permissions %}
+                                <tr class="hover:bg-white/5 transition-all">
+                                    <td class="px-6 py-4">
+                                        <div class="font-medium">{{ perm.citizen.full_name }}</div>
+                                        <div class="text-xs text-gray-500 font-mono">{{ perm.citizen.id_number }}</div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <span class="px-2 py-1 rounded text-[10px] font-bold uppercase bg-green-500/10 text-green-500">
+                                            {{ perm.access_type }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-gray-500">
+                                        {{ perm.created_at.strftime('%Y-%m-%d %H:%M') }}
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        {% if perm.is_active %}
+                                        <form method="POST" action="{{ url_for('dashboard.revoke_data_access', perm_id=perm.id) }}" class="inline">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <button type="submit" class="text-red-400 hover:text-red-300 text-xs font-semibold transition-colors">
+                                                Revoke
+                                            </button>
+                                        </form>
+                                        {% else %}
+                                        <span class="text-gray-600 text-xs">Inactive</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="4" class="px-6 py-12 text-center text-gray-600 italic">
+                                        No data access permissions yet.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <!-- Stats Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="api-card p-6">
@@ -161,7 +216,7 @@
                                             {{ case.status }}
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4 font-mono text-gray-400">{{ case.overall_score }}</td>
+                                    <td class="px-6 py-4 font-mono text-gray-500">{{ case.overall_score }}</td>
                                     <td class="px-6 py-4 text-gray-500">{{ case.created_at.strftime('%H:%M %d %b') }}</td>
                                 </tr>
                                 {% else %}
