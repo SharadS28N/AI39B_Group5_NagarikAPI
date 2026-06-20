@@ -7,6 +7,7 @@ import secrets
 import hashlib
 from datetime import datetime, timedelta
 from typing import Optional, Dict, Any
+from flask import current_app
 from app.database import get_connection
 
 
@@ -23,7 +24,8 @@ class APIKeyManager:
     def create_table():
         with get_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("""
+            using_mysql = bool(current_app.config.get('MYSQL_HOST'))
+            sql = """
                 CREATE TABLE IF NOT EXISTS api_keys (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     name VARCHAR(255),
@@ -38,8 +40,21 @@ class APIKeyManager:
                     INDEX idx_company_type (company_type),
                     INDEX idx_created_by (created_by)
                 )
-            """)
-            conn.commit()
+            """ if using_mysql else """
+                CREATE TABLE IF NOT EXISTS api_keys (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT,
+                    company_type TEXT NOT NULL,
+                    key_hash TEXT NOT NULL UNIQUE,
+                    scopes TEXT,
+                    created_by INTEGER,
+                    created_at TEXT DEFAULT (datetime('now')),
+                    expires_at TEXT NULL,
+                    revoked_at TEXT NULL,
+                    revoked_reason TEXT
+                )
+            """
+            cursor.execute(sql)
 
     @staticmethod
     def generate_key() -> str:
@@ -79,18 +94,23 @@ class APIKeyManager:
     def revoke_key(cls, api_id: int, reason: Optional[str] = None):
         with get_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("UPDATE api_keys SET revoked_at = CURRENT_TIMESTAMP, revoked_reason = %s WHERE id = %s", (reason, api_id))
-            conn.commit()
+            if current_app.config.get('MYSQL_HOST'):
+                cursor.execute("UPDATE api_keys SET revoked_at = CURRENT_TIMESTAMP, revoked_reason = %s WHERE id = %s", (reason, api_id))
+            else:
+                cursor.execute("UPDATE api_keys SET revoked_at = datetime('now'), revoked_reason = ? WHERE id = ?", (reason, api_id))
 
     @classmethod
     def list_keys(cls, company_type: Optional[str] = None, include_revoked: bool = False):
         with get_connection() as conn:
             cursor = conn.cursor()
+            using_mysql = bool(current_app.config.get('MYSQL_HOST'))
+            placeholder = '%s' if using_mysql else '?'
+
             if company_type:
                 if include_revoked:
-                    cursor.execute("SELECT id, name, company_type, scopes, created_by, created_at, expires_at, revoked_at FROM api_keys WHERE company_type = %s", (company_type,))
+                    cursor.execute(f"SELECT id, name, company_type, scopes, created_by, created_at, expires_at, revoked_at FROM api_keys WHERE company_type = {placeholder}", (company_type,))
                 else:
-                    cursor.execute("SELECT id, name, company_type, scopes, created_by, created_at, expires_at, revoked_at FROM api_keys WHERE company_type = %s AND revoked_at IS NULL", (company_type,))
+                    cursor.execute(f"SELECT id, name, company_type, scopes, created_by, created_at, expires_at, revoked_at FROM api_keys WHERE company_type = {placeholder} AND revoked_at IS NULL", (company_type,))
             else:
                 if include_revoked:
                     cursor.execute("SELECT id, name, company_type, scopes, created_by, created_at, expires_at, revoked_at FROM api_keys")
@@ -129,7 +149,10 @@ class APIKeyManager:
         key_hash = cls._hash_key(raw_key)
         with get_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT id, name, company_type, scopes, created_by, created_at, expires_at, revoked_at FROM api_keys WHERE key_hash = %s LIMIT 1", (key_hash,))
+            if current_app.config.get('MYSQL_HOST'):
+                cursor.execute("SELECT id, name, company_type, scopes, created_by, created_at, expires_at, revoked_at FROM api_keys WHERE key_hash = %s LIMIT 1", (key_hash,))
+            else:
+                cursor.execute("SELECT id, name, company_type, scopes, created_by, created_at, expires_at, revoked_at FROM api_keys WHERE key_hash = ? LIMIT 1", (key_hash,))
             row = cursor.fetchone()
             if not row:
                 return None

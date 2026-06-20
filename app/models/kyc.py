@@ -5,6 +5,8 @@ Handles user verification, document management, and compliance tracking.
 
 from datetime import datetime
 from enum import Enum
+from flask import current_app
+
 from app.database import get_connection
 import json
 
@@ -40,15 +42,23 @@ class DocumentType(Enum):
 
 class KYC:
     """KYC user verification model"""
+
+    @staticmethod
+    def _using_mysql():
+        return bool(current_app.config.get('MYSQL_HOST'))
+
+    @staticmethod
+    def _now_sql():
+        return 'NOW()' if KYC._using_mysql() else "datetime('now')"
     
     @staticmethod
     def create_table():
         """Create KYC tables if they don't exist"""
         with get_connection() as conn:
             cursor = conn.cursor()
-            
-            # KYC verification table
-            cursor.execute("""
+
+            if KYC._using_mysql():
+                kyc_verifications_sql = """
                 CREATE TABLE IF NOT EXISTS kyc_verifications (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     user_id INT NOT NULL UNIQUE,
@@ -74,10 +84,8 @@ class KYC:
                     INDEX idx_status (status),
                     INDEX idx_user_id (user_id)
                 )
-            """)
-            
-            # KYC documents table
-            cursor.execute("""
+                """
+                kyc_documents_sql = """
                 CREATE TABLE IF NOT EXISTS kyc_documents (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     kyc_id INT NOT NULL,
@@ -97,10 +105,8 @@ class KYC:
                     INDEX idx_kyc_id (kyc_id),
                     INDEX idx_document_type (document_type)
                 )
-            """)
-            
-            # KYC audit log table
-            cursor.execute("""
+                """
+                kyc_audit_sql = """
                 CREATE TABLE IF NOT EXISTS kyc_audit_log (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     kyc_id INT NOT NULL,
@@ -115,7 +121,70 @@ class KYC:
                     INDEX idx_kyc_id (kyc_id),
                     INDEX idx_action (action)
                 )
-            """)
+                """
+            else:
+                kyc_verifications_sql = """
+                CREATE TABLE IF NOT EXISTS kyc_verifications (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER NOT NULL UNIQUE,
+                    status TEXT NOT NULL DEFAULT 'not_started',
+                    first_name TEXT NOT NULL,
+                    last_name TEXT NOT NULL,
+                    email TEXT NOT NULL,
+                    phone TEXT,
+                    date_of_birth TEXT,
+                    nationality TEXT,
+                    address_line1 TEXT,
+                    address_line2 TEXT,
+                    city TEXT,
+                    state TEXT,
+                    postal_code TEXT,
+                    country TEXT,
+                    verification_date TEXT,
+                    rejection_reason TEXT,
+                    created_at TEXT DEFAULT (datetime('now')),
+                    updated_at TEXT DEFAULT (datetime('now')),
+                    expires_at TEXT,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                )
+                """
+                kyc_documents_sql = """
+                CREATE TABLE IF NOT EXISTS kyc_documents (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    kyc_id INTEGER NOT NULL,
+                    document_type TEXT NOT NULL,
+                    file_path TEXT NOT NULL,
+                    file_name TEXT NOT NULL,
+                    file_size INTEGER,
+                    mime_type TEXT,
+                    verification_status TEXT DEFAULT 'pending',
+                    verified_at TEXT,
+                    expiry_date TEXT,
+                    document_number TEXT,
+                    issuing_country TEXT,
+                    created_at TEXT DEFAULT (datetime('now')),
+                    updated_at TEXT DEFAULT (datetime('now')),
+                    FOREIGN KEY (kyc_id) REFERENCES kyc_verifications(id) ON DELETE CASCADE
+                )
+                """
+                kyc_audit_sql = """
+                CREATE TABLE IF NOT EXISTS kyc_audit_log (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    kyc_id INTEGER NOT NULL,
+                    action TEXT NOT NULL,
+                    old_status TEXT,
+                    new_status TEXT,
+                    changed_by INTEGER,
+                    change_reason TEXT,
+                    ip_address TEXT,
+                    created_at TEXT DEFAULT (datetime('now')),
+                    FOREIGN KEY (kyc_id) REFERENCES kyc_verifications(id) ON DELETE CASCADE
+                )
+                """
+            
+            cursor.execute(kyc_verifications_sql)
+            cursor.execute(kyc_documents_sql)
+            cursor.execute(kyc_audit_sql)
             
             return True
     
@@ -149,13 +218,13 @@ class KYC:
                     kyc_id, current_status = existing
                 # Update existing KYC
                 cursor.execute("""
-                    UPDATE kyc_verifications 
-                    SET first_name = %s, last_name = %s, email = %s, phone = %s,
-                        date_of_birth = %s, nationality = %s, country = %s,
-                        address_line1 = %s, address_line2 = %s, city = %s,
-                        state = %s, postal_code = %s, status = 'pending'
-                    WHERE user_id = %s
-                """, (
+                        UPDATE kyc_verifications 
+                        SET first_name = %s, last_name = %s, email = %s, phone = %s,
+                            date_of_birth = %s, nationality = %s, country = %s,
+                            address_line1 = %s, address_line2 = %s, city = %s,
+                            state = %s, postal_code = %s, status = 'pending', updated_at = %s
+                        WHERE user_id = %s
+                    """, (
                     data.get('first_name'),
                     data.get('last_name'),
                     data.get('email'),
@@ -168,6 +237,7 @@ class KYC:
                     data.get('city'),
                     data.get('state'),
                     data.get('postal_code'),
+                    datetime.utcnow().isoformat(sep=' '),
                     user_id
                 ))
                 
@@ -306,7 +376,6 @@ class KYC:
             ))
             
             doc_id = cursor.lastrowid
-            conn.commit()
             
             # Log the upload
             cursor.execute("""
@@ -329,9 +398,9 @@ class KYC:
             
             cursor.execute("""
                 UPDATE kyc_verifications
-                SET status = 'approved', verification_date = NOW()
+                SET status = 'approved', verification_date = %s, updated_at = %s
                 WHERE id = %s
-            """, (kyc_id,))
+            """, (datetime.utcnow().isoformat(sep=' '), datetime.utcnow().isoformat(sep=' '), kyc_id))
             
             cursor.execute("""
                 INSERT INTO kyc_audit_log (kyc_id, action, old_status, new_status, changed_by)
@@ -348,9 +417,9 @@ class KYC:
             
             cursor.execute("""
                 UPDATE kyc_verifications
-                SET status = 'rejected', rejection_reason = %s
+                SET status = 'rejected', rejection_reason = %s, updated_at = %s
                 WHERE id = %s
-            """, (reason, kyc_id))
+            """, (reason, datetime.utcnow().isoformat(sep=' '), kyc_id))
             
             cursor.execute("""
                 INSERT INTO kyc_audit_log (kyc_id, action, old_status, new_status, changed_by, change_reason)

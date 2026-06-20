@@ -51,13 +51,17 @@ MYSQL_SETTINGS = _database_settings()
 
 class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key')
-    MYSQL_HOST = MYSQL_SETTINGS['host']
+    # Allow forcing sqlite fallback in dev: set USE_SQLITE=1 in env
+    USE_SQLITE = os.getenv('USE_SQLITE', '').strip().lower() in {'1', 'true', 'yes', 'on'}
+
+    MYSQL_HOST = '' if USE_SQLITE else MYSQL_SETTINGS['host']
     MYSQL_PORT = MYSQL_SETTINGS['port']
     MYSQL_USER = MYSQL_SETTINGS['user']
     MYSQL_PASSWORD = MYSQL_SETTINGS['password']
     MYSQL_DATABASE = MYSQL_SETTINGS['database']
     MYSQL_SSL_CA = _resolve_ssl_ca()
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLITE_PATH = os.getenv('SQLITE_PATH', os.path.join(BASE_DIR, 'nagarikapi.db'))
 
     # Build SQLALCHEMY_DATABASE_URI from MySQL settings if available
     if MYSQL_USER or MYSQL_PASSWORD or MYSQL_HOST or MYSQL_DATABASE:

@@ -7,6 +7,7 @@ import jwt
 import os
 from datetime import datetime, timedelta
 from typing import Optional, Dict, Any
+from flask import current_app
 from app.database import get_connection
 
 
@@ -32,9 +33,9 @@ class TokenManager:
         try:
             with get_connection() as conn:
                 cursor = conn.cursor()
-                
-                # Token blacklist table (for token revocation)
-                cursor.execute("""
+
+                using_mysql = bool(current_app.config.get('MYSQL_HOST'))
+                token_blacklist_sql = """
                     CREATE TABLE IF NOT EXISTS token_blacklist (
                         id INT AUTO_INCREMENT PRIMARY KEY,
                         token_jti VARCHAR(500) NOT NULL UNIQUE,
@@ -42,14 +43,21 @@ class TokenManager:
                         token_type VARCHAR(50),
                         revoked_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                         revoke_reason VARCHAR(255),
-                        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-                        INDEX idx_user_id (user_id),
-                        INDEX idx_jti (token_jti)
+                        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
                     )
-                """)
-                
-                # Token usage audit
-                cursor.execute("""
+                """ if using_mysql else """
+                    CREATE TABLE IF NOT EXISTS token_blacklist (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        token_jti TEXT NOT NULL UNIQUE,
+                        user_id INTEGER NOT NULL,
+                        token_type TEXT,
+                        revoked_at TEXT DEFAULT (datetime('now')),
+                        revoke_reason TEXT,
+                        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                    )
+                """
+
+                token_audit_sql = """
                     CREATE TABLE IF NOT EXISTS token_audit (
                         id INT AUTO_INCREMENT PRIMARY KEY,
                         user_id INT NOT NULL,
@@ -58,11 +66,23 @@ class TokenManager:
                         ip_address VARCHAR(45),
                         user_agent TEXT,
                         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-                        INDEX idx_user_id (user_id),
-                        INDEX idx_action (action)
+                        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
                     )
-                """)
+                """ if using_mysql else """
+                    CREATE TABLE IF NOT EXISTS token_audit (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        user_id INTEGER NOT NULL,
+                        token_jti TEXT,
+                        action TEXT,
+                        ip_address TEXT,
+                        user_agent TEXT,
+                        created_at TEXT DEFAULT (datetime('now')),
+                        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                    )
+                """
+                
+                cursor.execute(token_blacklist_sql)
+                cursor.execute(token_audit_sql)
                 
             return True
         except Exception as e:
