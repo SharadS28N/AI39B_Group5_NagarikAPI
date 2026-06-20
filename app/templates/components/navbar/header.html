@@ -7,28 +7,28 @@
 
 {% if current_user.is_authenticated %}
   {% if current_user.role == 'admin' %}
-    {% set dashboard_url = url_for('main.admin_dashboard') %}
+    {% set dashboard_url = url_for('dashboard.admin') %}
     {% set nav_links = [
-      ('Dashboard', url_for('main.admin_dashboard')),
-      ('Company View', url_for('main.company_dashboard')),
+      ('Dashboard', url_for('dashboard.admin')),
+      ('Cases', url_for('kyc.cases')),
       ('Docs', url_for('main.docs')),
       ('Contact', url_for('main.contact'))
     ] %}
   {% elif current_user.role == 'company_admin' %}
-    {% set dashboard_url = url_for('main.company_dashboard') %}
+    {% set dashboard_url = url_for('dashboard.company') %}
     {% set nav_links = [
-      ('Dashboard', url_for('main.company_dashboard')),
-      ('User View', url_for('main.dashboard')),
+      ('Dashboard', url_for('dashboard.company')),
+      ('User View', url_for('dashboard.user_dashboard')),
       ('Docs', url_for('main.docs')),
       ('Contact', url_for('main.contact'))
     ] %}
   {% else %}
-    {% set dashboard_url = url_for('main.dashboard') %}
+    {% set dashboard_url = url_for('dashboard.user_dashboard') %}
     {% set nav_links = [
-      ('Dashboard', url_for('main.dashboard')),
+      ('Dashboard', url_for('dashboard.user_dashboard')),
+      ('New Verification', url_for('kyc.upload')),
       ('Solutions', url_for('main.solutions')),
-      ('Docs', url_for('main.docs')),
-      ('Contact', url_for('main.contact'))
+      ('Docs', url_for('main.docs'))
     ] %}
   {% endif %}
 {% else %}

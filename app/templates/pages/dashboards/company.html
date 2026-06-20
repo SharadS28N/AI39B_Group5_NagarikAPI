@@ -54,15 +54,37 @@
             <!-- Sidebar / Settings -->
             <div class="space-y-6">
                 <div class="api-card p-6">
-                    <h3 class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-6">Service API Key</h3>
+                    <h3 class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-6">Service API Keys</h3>
                     <div class="space-y-4">
+                        {% for key in api_keys %}
                         <div class="bg-black border border-white/10 rounded-lg p-3 flex items-center justify-between">
-                            <span class="text-gray-500 font-mono text-sm truncate mr-2">{{ company.api_key if company and company.api_key else 'pk_live_********************' }}</span>
-                            <button class="text-gray-400 hover:text-white transition-colors">
-                                <i data-lucide="copy" class="w-4 h-4"></i>
-                            </button>
+                            <span class="text-gray-500 font-mono text-sm truncate mr-2">{{ key.mask() }}</span>
+                            <div class="flex gap-2">
+                                <button class="text-gray-400 hover:text-white transition-colors">
+                                    <i data-lucide="copy" class="w-4 h-4"></i>
+                                </button>
+                                {% if key.is_active %}
+                                <form method="POST" action="{{ url_for('dashboard.revoke_api_key', key_id=key.id) }}" class="inline">
+                                    {{ csrf_token() }}
+                                    <button type="submit" class="text-red-400 hover:text-red-300 transition-colors">
+                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </div>
                         </div>
-                        <button class="w-full text-xs text-primary font-bold hover:underline py-2">Rotate Key</button>
+                        {% else %}
+                        <div class="bg-black border border-white/10 rounded-lg p-3">
+                            <span class="text-gray-500 text-sm">No API keys generated</span>
+                        </div>
+                        {% endfor %}
+                        <form method="POST" action="{{ url_for('dashboard.generate_api_key') }}">
+                            {{ csrf_token() }}
+                            <div class="flex gap-2">
+                                <input type="text" name="name" placeholder="Key name" class="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm">
+                                <button type="submit" class="bg-primary text-white text-xs font-bold px-4 py-2 rounded-lg hover:opacity-90">Generate</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
 
@@ -72,24 +94,33 @@
                         <div>
                             <div class="flex justify-between text-xs mb-2">
                                 <span class="text-gray-500">Monthly Quote</span>
-                                <span class="text-white">8,420 / 10,000</span>
+                                <span class="text-white">{{ stats.total }} / 10,000</span>
                             </div>
                             <div class="w-full h-1.5 bg-gray-900 rounded-full overflow-hidden">
-                                <div class="h-full bg-primary" style="width: 84%"></div>
+                                <div class="h-full bg-primary" style="width: {{ (stats.total / 100) if stats.total < 100 else 100 }}%"></div>
                             </div>
                         </div>
-                        <p class="text-[10px] text-gray-500 italic">Resets in 12 days</p>
+                        <p class="text-[10px] text-gray-500 italic">Success rate: {{ stats.success_rate }}%</p>
                     </div>
                 </div>
             </div>
 
             <!-- Main Content -->
             <div class="lg:col-span-3 space-y-8">
-                <!-- Usage Graph Placeholder -->
-                <div class="api-card p-8 min-h-[300px] flex flex-col items-center justify-center border-dashed">
-                    <i data-lucide="activity" class="w-12 h-12 text-gray-800 mb-4"></i>
-                    <h3 class="text-gray-500 font-medium">Integration Activity Graph</h3>
-                    <p class="text-gray-700 text-sm">Visualize your KYC request volume over time</p>
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="api-card p-6">
+                        <h3 class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-2">Total Cases</h3>
+                        <p class="text-3xl font-bold text-white">{{ stats.total }}</p>
+                    </div>
+                    <div class="api-card p-6">
+                        <h3 class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-2">Verified</h3>
+                        <p class="text-3xl font-bold text-green-400">{{ stats.verified }}</p>
+                    </div>
+                    <div class="api-card p-6">
+                        <h3 class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-2">Success Rate</h3>
+                        <p class="text-3xl font-bold text-primary">{{ stats.success_rate }}%</p>
+                    </div>
                 </div>
 
                 <!-- KYC Request List -->
@@ -109,30 +140,32 @@
                         <table class="w-full text-left">
                             <thead>
                                 <tr class="text-gray-500 text-[10px] uppercase tracking-widest border-b border-white/5">
+                                    <th class="px-6 py-4 font-bold">Case Ref</th>
                                     <th class="px-6 py-4 font-bold">Applicant</th>
-                                    <th class="px-6 py-4 font-bold">Doc Type</th>
+                                    <th class="px-6 py-4 font-bold">Type</th>
                                     <th class="px-6 py-4 font-bold">Status</th>
                                     <th class="px-6 py-4 font-bold">Score</th>
                                     <th class="px-6 py-4 font-bold">Time</th>
                                 </tr>
                             </thead>
-                            <tbody class="text-white text-sm divide-y divide-white/5">
-                                {% for req in requests %}
-                                <tr class="hover:bg-white/5 transition-all cursor-pointer">
-                                    <td class="px-6 py-4 font-medium">{{ req.user.full_name }}</td>
-                                    <td class="px-6 py-4 text-gray-500">{{ req.document_type|replace('_', ' ')|title }}</td>
+                            <tbody class="text-white text-sm divide-y divide-white/5" id="company-cases-table-body">
+                                {% for case in cases %}
+                                <tr class="hover:bg-white/5 transition-all cursor-pointer case-row" data-url="{{ url_for('kyc.result', case_id=case.id) }}">
+                                    <td class="px-6 py-4 font-mono text-primary">{{ case.case_ref }}</td>
+                                    <td class="px-6 py-4 font-medium">{{ case.submitter.full_name if case.submitter else 'N/A' }}</td>
+                                    <td class="px-6 py-4 text-gray-500">{{ case.verification_type|replace('_', ' ')|title }}</td>
                                     <td class="px-6 py-4">
                                         <span class="px-2 py-1 rounded text-[10px] font-bold uppercase
-                                            {% if req.status == 'approved' %} bg-green-500/10 text-green-500 {% elif req.status == 'pending' %} bg-yellow-500/10 text-yellow-500 {% else %} bg-red-500/10 text-red-500 {% endif %}">
-                                            {{ req.status }}
+                                            {% if case.status == 'verified' %} bg-green-500/10 text-green-500 {% elif case.status == 'pending' or case.status == 'processing' or case.status == 'manual_review' %} bg-yellow-500/10 text-yellow-500 {% else %} bg-red-500/10 text-red-500 {% endif %}">
+                                            {{ case.status }}
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4 font-mono text-gray-400">0.992</td>
-                                    <td class="px-6 py-4 text-gray-500">{{ req.created_at.strftime('%H:%M') }}</td>
+                                    <td class="px-6 py-4 font-mono text-gray-400">{{ case.overall_score }}</td>
+                                    <td class="px-6 py-4 text-gray-500">{{ case.created_at.strftime('%H:%M %d %b') }}</td>
                                 </tr>
                                 {% else %}
                                 <tr>
-                                    <td colspan="5" class="px-6 py-12 text-center text-gray-600 italic">
+                                    <td colspan="6" class="px-6 py-12 text-center text-gray-600 italic">
                                         No active KYC requests in your integration.
                                     </td>
                                 </tr>
@@ -145,4 +178,21 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Handle case row clicks
+    document.addEventListener('DOMContentLoaded', () => {
+        const caseRows = document.querySelectorAll('.case-row');
+        caseRows.forEach(row => {
+            row.addEventListener('click', (e) => {
+                const url = row.getAttribute('data-url');
+                if (url) {
+                    window.location.href = url;
+                }
+            });
+        });
+    });
+</script>
 {% endblock %}

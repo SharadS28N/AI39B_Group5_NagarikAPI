@@ -2,19 +2,177 @@
 
 {% block title %}Admin Dashboard | NagarikAPI{% endblock %}
 
+{% block extra_css %}
+<style>
+    .admin-container {
+        padding-top: 120px;
+        min-height: 100vh;
+        background: #050505;
+    }
+    .stats-card {
+        background: linear-gradient(135deg, #111 0%, #0a0a0a 100%);
+        border: 1px solid #222;
+        border-radius: 16px;
+        padding: 24px;
+        transition: all 0.3s ease;
+    }
+    .stats-card:hover {
+        border-color: var(--color-primary);
+        transform: translateY(-2px);
+    }
+    .table-container {
+        background: linear-gradient(135deg, #111 0%, #0a0a0a 100%);
+        border: 1px solid #222;
+        border-radius: 16px;
+        overflow: hidden;
+    }
+    .badge {
+        padding: 4px 12px;
+        border-radius: 99px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+    .badge-pending { background: #3b2b00; color: #ffcc00; }
+    .badge-verified { background: #003311; color: #00ff66; }
+    .badge-rejected { background: #330000; color: #ff4444; }
+    .badge-flagged { background: #330033; color: #ff66ff; }
+</style>
+{% endblock %}
+
 {% block content %}
-<section class="panel">
-    <h1>Admin dashboard</h1>
-    <p>Platform-level metrics across users, companies, and KYC requests.</p>
-</section>
-<section class="panel">
-    <h2>Key metrics</h2>
-    <table class="table" aria-label="Admin stats">
-        <tbody>
-            <tr><th>Total users</th><td>{{ stats.total_users }}</td></tr>
-            <tr><th>Total companies</th><td>{{ stats.total_companies }}</td></tr>
-            <tr><th>Total requests</th><td>{{ stats.total_requests }}</td></tr>
-        </tbody>
-    </table>
-</section>
+<div class="admin-container px-6">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between mb-12 gap-6">
+            <div>
+                <h1 class="text-3xl font-bold text-white mb-2">Admin Dashboard</h1>
+                <p class="text-gray-400">Platform-level metrics across users, companies, and KYC requests</p>
+            </div>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            <div class="stats-card">
+                <p class="text-gray-500 text-sm mb-1">Total Cases</p>
+                <h3 class="text-2xl font-bold text-white">{{ stats.total_cases }}</h3>
+            </div>
+            <div class="stats-card">
+                <p class="text-gray-500 text-sm mb-1">Verified</p>
+                <h3 class="text-2xl font-bold text-green-400">{{ stats.verified_cases }}</h3>
+            </div>
+            <div class="stats-card">
+                <p class="text-gray-500 text-sm mb-1">Pending</p>
+                <h3 class="text-2xl font-bold text-yellow-400">{{ stats.pending_cases }}</h3>
+            </div>
+            <div class="stats-card">
+                <p class="text-gray-500 text-sm mb-1">Rejected</p>
+                <h3 class="text-2xl font-bold text-red-400">{{ stats.rejected_cases }}</h3>
+            </div>
+        </div>
+
+        <!-- Second Row of Stats -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            <div class="stats-card">
+                <p class="text-gray-500 text-sm mb-1">Flagged Cases</p>
+                <h3 class="text-2xl font-bold text-purple-400">{{ stats.flagged_cases }}</h3>
+            </div>
+            <div class="stats-card">
+                <p class="text-gray-500 text-sm mb-1">Total Users</p>
+                <h3 class="text-2xl font-bold text-white">{{ stats.total_users }}</h3>
+            </div>
+            <div class="stats-card">
+                <p class="text-gray-500 text-sm mb-1">Success Rate</p>
+                <h3 class="text-2xl font-bold text-primary">{{ stats.success_rate }}%</h3>
+            </div>
+        </div>
+
+        <!-- Recent Cases -->
+        <div class="table-container mb-12">
+            <div class="p-6 border-b border-white/5">
+                <h2 class="text-xl font-bold text-white">Recent Cases</h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="text-gray-500 text-[11px] uppercase tracking-widest border-b border-white/5">
+                            <th class="px-6 py-4 font-bold">Case Ref</th>
+                            <th class="px-6 py-4 font-bold">User</th>
+                            <th class="px-6 py-4 font-bold">Type</th>
+                            <th class="px-6 py-4 font-bold">Status</th>
+                            <th class="px-6 py-4 font-bold">Score</th>
+                            <th class="px-6 py-4 font-bold">Date</th>
+                            <th class="px-6 py-4 font-bold">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-white text-sm divide-y divide-white/5">
+                        {% for case in recent_cases %}
+                        <tr class="hover:bg-white/5 transition-all">
+                            <td class="px-6 py-4 font-mono text-primary">{{ case.case_ref }}</td>
+                            <td class="px-6 py-4">{{ case.submitter.full_name if case.submitter else 'N/A' }}</td>
+                            <td class="px-6 py-4 text-gray-500">{{ case.verification_type|replace('_', ' ')|title }}</td>
+                            <td class="px-6 py-4">
+                                <span class="badge
+                                  {% if case.status == 'verified' %} badge-verified
+                                  {% elif case.status == 'rejected' %} badge-rejected
+                                  {% else %} badge-pending
+                                  {% endif %}">{{ case.status }}</span>
+                                {% if case.is_flagged %}
+                                <span class="badge badge-flagged ml-2">Flagged</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 font-mono text-gray-400">{{ case.overall_score }}</td>
+                            <td class="px-6 py-4 text-gray-500">{{ case.created_at.strftime('%b %d, %Y %H:%M') }}</td>
+                            <td class="px-6 py-4">
+                                <a href="{{ url_for('kyc.result', case_id=case.id) }}" class="text-primary hover:underline font-medium">View</a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="px-6 py-12 text-center text-gray-600 italic">
+                                No cases yet
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Recent Activity Logs -->
+        <div class="table-container">
+            <div class="p-6 border-b border-white/5">
+                <h2 class="text-xl font-bold text-white">Recent Activity</h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="text-gray-500 text-[11px] uppercase tracking-widest border-b border-white/5">
+                            <th class="px-6 py-4 font-bold">Action</th>
+                            <th class="px-6 py-4 font-bold">Case</th>
+                            <th class="px-6 py-4 font-bold">User</th>
+                            <th class="px-6 py-4 font-bold">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-white text-sm divide-y divide-white/5">
+                        {% for log in recent_logs %}
+                        <tr class="hover:bg-white/5 transition-all">
+                            <td class="px-6 py-4">{{ log.action|replace('_', ' ')|title }}</td>
+                            <td class="px-6 py-4 font-mono text-primary">{{ log.case.case_ref if log.case else 'N/A' }}</td>
+                            <td class="px-6 py-4">{{ log.user.full_name if log.user else 'System' }}</td>
+                            <td class="px-6 py-4 text-gray-500">{{ log.created_at.strftime('%b %d, %Y %H:%M') }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="px-6 py-12 text-center text-gray-600 italic">
+                                No activity yet
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

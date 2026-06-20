@@ -1,0 +1,57 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}KYC Verification - Nagarik API{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-12">
+    <div class="max-w-2xl mx-auto">
+        <h1 class="text-3xl font-bold text-white mb-2">KYC Verification</h1>
+        <p class="text-gray-400 mb-8">Upload your National ID and a selfie to complete verification</p>
+
+        <form method="POST" enctype="multipart/form-data" class="bg-gray-900/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-800">
+            {{ csrf_token() }}
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-300 mb-2">National ID Image</label>
+                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed border-gray-700 rounded-xl">
+                    <div class="space-y-1 text-center">
+                        <svg class="mx-auto h-12 w-12 text-gray-500" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <div class="flex text-sm text-gray-400">
+                            <label for="id_image" class="relative cursor-pointer rounded-md font-medium text-purple-400 hover:text-purple-300">
+                                <span>Upload a file</span>
+                                <input id="id_image" name="id_image" type="file" class="sr-only" accept="image/png,image/jpeg" required>
+                            </label>
+                            <p class="pl-1">or drag and drop</p>
+                        </div>
+                        <p class="text-xs text-gray-500">PNG, JPG up to 10MB</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-300 mb-2">Selfie (Optional)</label>
+                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed border-gray-700 rounded-xl">
+                    <div class="space-y-1 text-center">
+                        <svg class="mx-auto h-12 w-12 text-gray-500" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                            <path d="M24 24a12 12 0 100-24 12 12 0 000 24zM4 44v-2a20 20 0 0140 0v2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <div class="flex text-sm text-gray-400">
+                            <label for="selfie" class="relative cursor-pointer rounded-md font-medium text-purple-400 hover:text-purple-300">
+                                <span>Upload a selfie</span>
+                                <input id="selfie" name="selfie" type="file" class="sr-only" accept="image/png,image/jpeg">
+                            </label>
+                            <p class="pl-1">or drag and drop</p>
+                        </div>
+                        <p class="text-xs text-gray-500">PNG, JPG up to 10MB</p>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 px-6 rounded-xl font-semibold hover:from-purple-500 hover:to-indigo-500 transition-all">
+                Submit Verification
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

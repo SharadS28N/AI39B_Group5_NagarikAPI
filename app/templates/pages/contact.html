@@ -168,24 +168,25 @@
 
       <!-- Form Side -->
       <div class="ng-contact-form" data-animate style="--reveal-delay: 100ms">
-        <form>
+        <form method="POST" action="{{ url_for('main.contact') }}">
+          {{ csrf_token() }}
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
             <div class="ng-form-group">
               <label>First name</label>
-              <input type="text" placeholder="John">
+              <input type="text" name="first_name" placeholder="John" required>
             </div>
             <div class="ng-form-group">
               <label>Last name</label>
-              <input type="text" placeholder="Doe">
+              <input type="text" name="last_name" placeholder="Doe" required>
             </div>
           </div>
           <div class="ng-form-group">
             <label>Work email</label>
-            <input type="email" placeholder="john@company.com">
+            <input type="email" name="email" placeholder="john@company.com" required>
           </div>
           <div class="ng-form-group">
             <label>Subject</label>
-            <select>
+            <select name="subject">
               <option>General Inquiry</option>
               <option>Partnership</option>
               <option>Technical Support</option>
@@ -194,7 +195,7 @@
           </div>
           <div class="ng-form-group">
             <label>How can we help?</label>
-            <textarea rows="4" placeholder="Tell us about your project..."></textarea>
+            <textarea name="message" rows="4" placeholder="Tell us about your project..." required></textarea>
           </div>
           <button type="submit" class="ng-btn ng-btn--primary">Send message</button>
         </form>

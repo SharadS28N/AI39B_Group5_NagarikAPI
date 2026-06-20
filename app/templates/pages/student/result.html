@@ -1,0 +1,93 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Student Verification Result - Nagarik API{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-12">
+    <div class="max-w-3xl mx-auto">
+        <div class="bg-gray-900/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-800">
+            <div class="text-center mb-8">
+                {% if case.status == 'verified' %}
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-green-500/20 rounded-full mb-4">
+                    <svg class="w-10 h-10 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+                <h1 class="text-3xl font-bold text-white mb-2">Student Status Verified</h1>
+                <p class="text-green-400">Your student status has been verified successfully</p>
+                {% elif case.status == 'manual_review' %}
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-yellow-500/20 rounded-full mb-4">
+                    <svg class="w-10 h-10 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                </div>
+                <h1 class="text-3xl font-bold text-white mb-2">Under Review</h1>
+                <p class="text-yellow-400">Your verification is under manual review</p>
+                {% else %}
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-red-500/20 rounded-full mb-4">
+                    <svg class="w-10 h-10 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </div>
+                <h1 class="text-3xl font-bold text-white mb-2">Verification Failed</h1>
+                <p class="text-red-400">Your student status could not be verified</p>
+                {% endif %}
+            </div>
+
+            <div class="mb-6">
+                <h2 class="text-lg font-semibold text-white mb-4">Case Details</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-gray-800/50 rounded-xl p-4">
+                        <p class="text-sm text-gray-400">Case Reference</p>
+                        <p class="text-lg font-semibold text-white">{{ case.case_ref }}</p>
+                    </div>
+                    <div class="bg-gray-800/50 rounded-xl p-4">
+                        <p class="text-sm text-gray-400">Status</p>
+                        <p class="text-lg font-semibold text-white capitalize">{{ case.status }}</p>
+                    </div>
+                    <div class="bg-gray-800/50 rounded-xl p-4">
+                        <p class="text-sm text-gray-400">Overall Score</p>
+                        <p class="text-lg font-semibold text-white">{{ case.overall_score }}%</p>
+                    </div>
+                    <div class="bg-gray-800/50 rounded-xl p-4">
+                        <p class="text-sm text-gray-400">Date</p>
+                        <p class="text-lg font-semibold text-white">{{ case.created_at.strftime('%Y-%m-%d') }}</p>
+                    </div>
+                </div>
+            </div>
+
+            {% if student %}
+            <div class="mb-6">
+                <h2 class="text-lg font-semibold text-white mb-4">Student Information</h2>
+                <div class="space-y-3">
+                    {% if student.institution_name %}
+                    <div class="flex justify-between items-center py-2 border-b border-gray-800">
+                        <span class="text-gray-400">Institution</span>
+                        <span class="text-white font-medium">{{ student.institution_name }}</span>
+                    </div>
+                    {% endif %}
+                    {% if student.student_id %}
+                    <div class="flex justify-between items-center py-2 border-b border-gray-800">
+                        <span class="text-gray-400">Student ID</span>
+                        <span class="text-white font-medium">{{ student.student_id }}</span>
+                    </div>
+                    {% endif %}
+                    {% if student.program %}
+                    <div class="flex justify-between items-center py-2 border-b border-gray-800">
+                        <span class="text-gray-400">Program</span>
+                        <span class="text-white font-medium">{{ student.program }}</span>
+                    </div>
+                    {% endif %}
+                    {% if student.enrollment_year %}
+                    <div class="flex justify-between items-center py-2 border-b border-gray-800">
+                        <span class="text-gray-400">Enrollment Year</span>
+                        <span class="text-white font-medium">{{ student.enrollment_year }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

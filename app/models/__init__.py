@@ -1,200 +1,25 @@
-import json
+import secrets
+import hashlib
 from datetime import datetime
-
+from app.extensions import db, bcrypt
 from flask_login import UserMixin
 
-from app import bcrypt
-from app.database import execute, fetch_all, fetch_one
 
+class User(UserMixin, db.Model):
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password_hash = db.Column(db.String(256), nullable=False)
+    full_name = db.Column(db.String(100), nullable=False)
+    role = db.Column(db.String(20), default='user')
+    # roles: 'admin', 'company_admin', 'user'
+    company_id = db.Column(db.Integer, db.ForeignKey('companies.id'), nullable=True)
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-def _parse_datetime(value):
-    if value is None or isinstance(value, datetime):
-        return value
-    if isinstance(value, str):
-        try:
-            return datetime.fromisoformat(value)
-        except ValueError:
-            return value
-    return value
-
-
-def _parse_json(value):
-    if value is None or isinstance(value, (dict, list)):
-        return value
-    if isinstance(value, str):
-        try:
-            return json.loads(value)
-        except json.JSONDecodeError:
-            return value
-    return value
-
-
-class Company:
-    def __init__(self, id=None, name='', registration_number='', api_key=None, created_at=None):
-        self.id = id
-        self.name = name
-        self.registration_number = registration_number
-        self.api_key = api_key
-        self.created_at = created_at
-
-    @classmethod
-    def from_row(cls, row, prefix=''):
-        if not row:
-            return None
-        return cls(
-            id=row.get(f'{prefix}id'),
-            name=row.get(f'{prefix}name', ''),
-            registration_number=row.get(f'{prefix}registration_number', ''),
-            api_key=row.get(f'{prefix}api_key'),
-            created_at=_parse_datetime(row.get(f'{prefix}created_at')),
-        )
-
-    @classmethod
-    def get_by_id(cls, company_id):
-        row = fetch_one(
-            'SELECT id, name, registration_number, api_key, created_at FROM companies WHERE id = %s',
-            (company_id,),
-        )
-        return cls.from_row(row)
-
-    @classmethod
-    def count(cls):
-        row = fetch_one('SELECT COUNT(*) AS total FROM companies')
-        return int(row['total']) if row else 0
-
-    @classmethod
-    def create(cls, name, registration_number, api_key=None):
-        existing = fetch_one(
-            'SELECT id, name, registration_number, api_key, created_at FROM companies WHERE registration_number = %s',
-            (registration_number,),
-        )
-        if existing:
-            return cls.from_row(existing)
-
-        company_id = execute(
-            'INSERT INTO companies (name, registration_number, api_key) VALUES (%s, %s, %s)',
-            (name, registration_number, api_key),
-        )
-        return cls.get_by_id(company_id)
-
-
-class User(UserMixin):
-    def __init__(
-        self,
-        id=None,
-        email='',
-        password_hash='',
-        full_name='',
-        role='user',
-        created_at=None,
-        company_id=None,
-        company=None,
-    ):
-        self.id = id
-        self.email = email
-        self.password_hash = password_hash
-        self.full_name = full_name
-        self.role = role
-        self.created_at = created_at
-        self.company_id = company_id
-        self.company = company
-
-    @classmethod
-    def from_row(cls, row, prefix=''):
-        if not row:
-            return None
-
-        company = None
-        if row.get('company_id') is not None and row.get('company_name') is not None:
-            company = Company(
-                id=row.get('company_id'),
-                name=row.get('company_name', ''),
-                registration_number=row.get('company_registration_number', ''),
-                api_key=row.get('company_api_key'),
-                created_at=_parse_datetime(row.get('company_created_at')),
-            )
-
-        return cls(
-            id=row.get(f'{prefix}id'),
-            email=row.get(f'{prefix}email', ''),
-            password_hash=row.get(f'{prefix}password_hash', ''),
-            full_name=row.get(f'{prefix}full_name', ''),
-            role=row.get(f'{prefix}role', 'user') or 'user',
-            created_at=_parse_datetime(row.get(f'{prefix}created_at')),
-            company_id=row.get(f'{prefix}company_id'),
-            company=company,
-        )
-
-    @classmethod
-    def get_by_id(cls, user_id):
-        row = fetch_one(
-            '''
-            SELECT
-                u.id AS user_id,
-                u.email AS user_email,
-                u.password_hash AS user_password_hash,
-                u.full_name AS user_full_name,
-                u.role AS user_role,
-                u.created_at AS user_created_at,
-                u.company_id AS user_company_id,
-                c.id AS company_id,
-                c.name AS company_name,
-                c.registration_number AS company_registration_number,
-                c.api_key AS company_api_key,
-                c.created_at AS company_created_at
-            FROM users u
-            LEFT JOIN companies c ON c.id = u.company_id
-            WHERE u.id = %s
-            ''',
-            (user_id,),
-        )
-        return cls.from_row(row, prefix='user_')
-
-    @classmethod
-    def find_by_email(cls, email):
-        row = fetch_one(
-            '''
-            SELECT
-                u.id AS user_id,
-                u.email AS user_email,
-                u.password_hash AS user_password_hash,
-                u.full_name AS user_full_name,
-                u.role AS user_role,
-                u.created_at AS user_created_at,
-                u.company_id AS user_company_id,
-                c.id AS company_id,
-                c.name AS company_name,
-                c.registration_number AS company_registration_number,
-                c.api_key AS company_api_key,
-                c.created_at AS company_created_at
-            FROM users u
-            LEFT JOIN companies c ON c.id = u.company_id
-            WHERE u.email = %s
-            ''',
-            (email,),
-        )
-        return cls.from_row(row, prefix='user_')
-
-    @classmethod
-    def count(cls):
-        row = fetch_one('SELECT COUNT(*) AS total FROM users')
-        return int(row['total']) if row else 0
-
-    @classmethod
-    def create(cls, full_name, email, password, role='user', company_id=None):
-        existing = cls.find_by_email(email)
-        if existing:
-            return existing
-
-        password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
-        user_id = execute(
-            '''
-            INSERT INTO users (email, password_hash, full_name, role, company_id)
-            VALUES (%s, %s, %s, %s, %s)
-            ''',
-            (email, password_hash, full_name, role, company_id),
-        )
-        return cls.get_by_id(user_id)
+    kyc_requests = db.relationship('KYCRequest', backref='submitter', lazy=True,
+                                   foreign_keys='KYCRequest.user_id')
+    company = db.relationship('Company', backref='users', lazy=True)
 
     def set_password(self, password):
         self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
@@ -202,230 +27,173 @@ class User(UserMixin):
     def check_password(self, password):
         return bcrypt.check_password_hash(self.password_hash, password)
 
-    @property
-    def kyc_requests(self):
-        return KYCRequest.for_user(self.id)
+    def __repr__(self):
+        return f'<User {self.email}>'
 
 
-class KYCRequest:
-    def __init__(
-        self,
-        id=None,
-        user_id=None,
-        company_id=None,
-        document_type='national_id',
-        status='pending',
-        ocr_data=None,
-        verification_date=None,
-        created_at=None,
-        user=None,
-        organization=None,
-    ):
-        self.id = id
-        self.user_id = user_id
-        self.company_id = company_id
-        self.document_type = document_type
-        self.status = status
-        self.ocr_data = ocr_data
-        self.verification_date = verification_date
-        self.created_at = created_at
-        self.user = user
-        self.organization = organization
+class Company(db.Model):
+    __tablename__ = 'companies'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    type = db.Column(db.String(30), default='bank')
+    # types: bank, fintech, insurance, university, mfi
+    registration_number = db.Column(db.String(50), unique=True, nullable=False)
+    webhook_url = db.Column(db.String(500), nullable=True)
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    @classmethod
-    def from_row(cls, row, prefix=''):
-        if not row:
-            return None
+    api_keys = db.relationship('APIKey', backref='company', lazy=True)
+    requests = db.relationship('KYCRequest', backref='institution', lazy=True,
+                                foreign_keys='KYCRequest.company_id')
 
-        user = None
-        if row.get('user_id') is not None and row.get('user_email') is not None:
-            user = User(
-                id=row.get('user_id'),
-                email=row.get('user_email', ''),
-                password_hash=row.get('user_password_hash', ''),
-                full_name=row.get('user_full_name', ''),
-                role=row.get('user_role', 'user') or 'user',
-                created_at=_parse_datetime(row.get('user_created_at')),
-                company_id=row.get('user_company_id'),
-            )
 
-        organization = None
-        if row.get('company_id') is not None and row.get('company_name') is not None:
-            organization = Company(
-                id=row.get('company_id'),
-                name=row.get('company_name', ''),
-                registration_number=row.get('company_registration_number', ''),
-                api_key=row.get('company_api_key'),
-                created_at=_parse_datetime(row.get('company_created_at')),
-            )
+class APIKey(db.Model):
+    __tablename__ = 'api_keys'
+    id = db.Column(db.Integer, primary_key=True)
+    key = db.Column(db.String(64), unique=True, nullable=False,
+                   default=lambda: secrets.token_hex(32))
+    company_id = db.Column(db.Integer, db.ForeignKey('companies.id'))
+    name = db.Column(db.String(100), default='Default Key')
+    is_active = db.Column(db.Boolean, default=True)
+    requests_count = db.Column(db.Integer, default=0)
+    last_used = db.Column(db.DateTime, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-        return cls(
-            id=row.get(f'{prefix}id'),
-            user_id=row.get(f'{prefix}user_id'),
-            company_id=row.get(f'{prefix}company_id'),
-            document_type=row.get(f'{prefix}document_type', 'national_id'),
-            status=row.get(f'{prefix}status', 'pending') or 'pending',
-            ocr_data=_parse_json(row.get(f'{prefix}ocr_data')),
-            verification_date=_parse_datetime(row.get(f'{prefix}verification_date')),
-            created_at=_parse_datetime(row.get(f'{prefix}created_at')),
-            user=user,
-            organization=organization,
-        )
+    def mask(self):
+        return f"{self.key[:8]}...{self.key[-4:]}"
 
-    @classmethod
-    def count(cls):
-        row = fetch_one('SELECT COUNT(*) AS total FROM kyc_requests')
-        return int(row['total']) if row else 0
 
-    @classmethod
-    def for_user(cls, user_id):
-        rows = fetch_all(
-            '''
-            SELECT
-                kr.id AS request_id,
-                kr.user_id AS request_user_id,
-                kr.company_id AS request_company_id,
-                kr.document_type AS request_document_type,
-                kr.status AS request_status,
-                kr.ocr_data AS request_ocr_data,
-                kr.verification_date AS request_verification_date,
-                kr.created_at AS request_created_at,
-                u.id AS user_id,
-                u.email AS user_email,
-                u.password_hash AS user_password_hash,
-                u.full_name AS user_full_name,
-                u.role AS user_role,
-                u.created_at AS user_created_at,
-                u.company_id AS user_company_id,
-                c.id AS company_id,
-                c.name AS company_name,
-                c.registration_number AS company_registration_number,
-                c.api_key AS company_api_key,
-                c.created_at AS company_created_at
-            FROM kyc_requests kr
-            LEFT JOIN users u ON u.id = kr.user_id
-            LEFT JOIN companies c ON c.id = kr.company_id
-            WHERE kr.user_id = %s
-            ORDER BY kr.created_at DESC
-            ''',
-            (user_id,),
-        )
-        return [cls.from_row(row, prefix='request_') for row in rows]
+class KYCRequest(db.Model):
+    __tablename__ = 'kyc_requests'
+    id = db.Column(db.Integer, primary_key=True)
+    case_ref = db.Column(db.String(20), unique=True, nullable=False,
+                        default=lambda: f"KYC-{secrets.token_hex(4).upper()}")
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    company_id = db.Column(db.Integer, db.ForeignKey('companies.id'), nullable=True)
 
-    @classmethod
-    def for_company(cls, company_id):
-        rows = fetch_all(
-            '''
-            SELECT
-                kr.id AS request_id,
-                kr.user_id AS request_user_id,
-                kr.company_id AS request_company_id,
-                kr.document_type AS request_document_type,
-                kr.status AS request_status,
-                kr.ocr_data AS request_ocr_data,
-                kr.verification_date AS request_verification_date,
-                kr.created_at AS request_created_at,
-                u.id AS user_id,
-                u.email AS user_email,
-                u.password_hash AS user_password_hash,
-                u.full_name AS user_full_name,
-                u.role AS user_role,
-                u.created_at AS user_created_at,
-                u.company_id AS user_company_id,
-                c.id AS company_id,
-                c.name AS company_name,
-                c.registration_number AS company_registration_number,
-                c.api_key AS company_api_key,
-                c.created_at AS company_created_at
-            FROM kyc_requests kr
-            LEFT JOIN users u ON u.id = kr.user_id
-            LEFT JOIN companies c ON c.id = kr.company_id
-            WHERE kr.company_id = %s
-            ORDER BY kr.created_at DESC
-            ''',
-            (company_id,),
-        )
-        return [cls.from_row(row, prefix='request_') for row in rows]
+    # Verification type
+    verification_type = db.Column(db.String(20), default='kyc')
+    # types: kyc, student
 
-    @classmethod
-    def create(cls, user_id, document_type, company_id=None, status='pending', ocr_data=None, verification_date=None):
-        request_id = execute(
-            '''
-            INSERT INTO kyc_requests (user_id, company_id, document_type, status, ocr_data, verification_date)
-            VALUES (%s, %s, %s, %s, %s, %s)
-            ''',
-            (user_id, company_id, document_type, status, json.dumps(ocr_data) if isinstance(ocr_data, (dict, list)) else ocr_data, verification_date),
-        )
-        row = fetch_one(
-            '''
-            SELECT
-                kr.id AS request_id,
-                kr.user_id AS request_user_id,
-                kr.company_id AS request_company_id,
-                kr.document_type AS request_document_type,
-                kr.status AS request_status,
-                kr.ocr_data AS request_ocr_data,
-                kr.verification_date AS request_verification_date,
-                kr.created_at AS request_created_at,
-                u.id AS user_id,
-                u.email AS user_email,
-                u.password_hash AS user_password_hash,
-                u.full_name AS user_full_name,
-                u.role AS user_role,
-                u.created_at AS user_created_at,
-                u.company_id AS user_company_id,
-                c.id AS company_id,
-                c.name AS company_name,
-                c.registration_number AS company_registration_number,
-                c.api_key AS company_api_key,
-                c.created_at AS company_created_at
-            FROM kyc_requests kr
-            LEFT JOIN users u ON u.id = kr.user_id
-            LEFT JOIN companies c ON c.id = kr.company_id
-            WHERE kr.id = %s
-            ''',
-            (request_id,),
-        )
-        return cls.from_row(row, prefix='request_')
+    # Document info
+    document_type = db.Column(db.String(20), default='national_id')
+    id_image_path = db.Column(db.String(500), nullable=True)
+    selfie_path = db.Column(db.String(500), nullable=True)
+
+    # OCR extracted data
+    full_name = db.Column(db.String(200), nullable=True)
+    date_of_birth = db.Column(db.String(30), nullable=True)
+    id_number = db.Column(db.String(50), nullable=True)
+    address = db.Column(db.Text, nullable=True)
+    citizenship_no = db.Column(db.String(50), nullable=True)
+    issue_date = db.Column(db.String(30), nullable=True)
+    issue_district = db.Column(db.String(100), nullable=True)
+
+    # Student verification extra fields
+    institution_name = db.Column(db.String(200), nullable=True)
+    student_id = db.Column(db.String(50), nullable=True)
+    enrollment_year = db.Column(db.String(10), nullable=True)
+    program = db.Column(db.String(200), nullable=True)
+
+    # Scores
+    ocr_confidence = db.Column(db.Float, default=0.0)
+    face_match_score = db.Column(db.Float, default=0.0)
+    overall_score = db.Column(db.Float, default=0.0)
+
+    # Status
+    status = db.Column(db.String(20), default='pending')
+    # pending | processing | verified | rejected | manual_review
+
+    is_flagged = db.Column(db.Boolean, default=False)
+    flag_reason = db.Column(db.Text, nullable=True)
+
+    # Raw OCR data
+    raw_ocr_data = db.Column(db.JSON, nullable=True)
+
+    reviewed_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow,
+                          onupdate=datetime.utcnow)
+
+    audit_logs = db.relationship('AuditLog', backref='case', lazy=True)
+
+    def to_dict(self):
+        return {
+            'case_ref': self.case_ref,
+            'status': self.status,
+            'verification_type': self.verification_type,
+            'full_name': self.full_name,
+            'date_of_birth': self.date_of_birth,
+            'id_number': self.id_number,
+            'address': self.address,
+            'citizenship_no': self.citizenship_no,
+            'ocr_confidence': round(self.ocr_confidence or 0, 3),
+            'face_match_score': round(self.face_match_score or 0, 3),
+            'overall_score': round(self.overall_score or 0, 3),
+            'is_flagged': self.is_flagged,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+        }
+
+
+class AuditLog(db.Model):
+    __tablename__ = 'audit_logs'
+    id = db.Column(db.Integer, primary_key=True)
+    case_id = db.Column(db.Integer, db.ForeignKey('kyc_requests.id'), nullable=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    action = db.Column(db.String(100), nullable=False)
+    detail = db.Column(db.Text, nullable=True)
+    ip_address = db.Column(db.String(45), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class StudentRecord(db.Model):
+    __tablename__ = 'student_records'
+    id = db.Column(db.Integer, primary_key=True)
+    kyc_request_id = db.Column(db.Integer, db.ForeignKey('kyc_requests.id'))
+    institution_name = db.Column(db.String(200))
+    student_id = db.Column(db.String(50))
+    program = db.Column(db.String(200))
+    enrollment_year = db.Column(db.String(10))
+    expected_grad = db.Column(db.String(10))
+    verified = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 
 def seed_demo_data():
-    if User.count() > 0:
+    if User.query.count() > 0:
         return
 
-    company = Company.create(
+    company = Company(
         name='Bank Nepal',
-        registration_number='BN-001',
-        api_key='demo-bank-nepal',
+        registration_number='BN-001'
     )
+    db.session.add(company)
+    db.session.flush()
 
-    _admin = User.create(
+    admin = User(
         full_name='Superuser Admin',
         email='admin@nagarikapi.com',
-        password='Admin123',
-        role='admin',
+        role='admin'
     )
+    admin.set_password('Admin123')
+    db.session.add(admin)
 
-    company_admin = User.create(
+    company_admin = User(
         full_name='Company Admin',
         email='hr@banknepal.com',
-        password='CompanyAdmin123',
         role='company_admin',
-        company_id=company.id,
+        company_id=company.id
     )
+    company_admin.set_password('CompanyAdmin123')
+    db.session.add(company_admin)
 
-    end_user = User.create(
+    end_user = User(
         full_name='End User',
         email='user@example.com',
-        password='User123',
         role='user',
-        company_id=company.id,
+        company_id=company.id
     )
+    end_user.set_password('User123')
+    db.session.add(end_user)
 
-    KYCRequest.create(
-        user_id=end_user.id,
-        company_id=company.id,
-        document_type='national_id',
-        status='approved',
-    )
-
+    db.session.commit()

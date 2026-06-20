@@ -70,10 +70,10 @@
                 <p class="text-gray-400">Welcome to your identity management hub</p>
             </div>
             <div class="flex items-center space-x-4">
-                <button class="bg-white text-black font-bold py-2.5 px-6 rounded-full hover:bg-gray-200 transition-all flex items-center shadow-lg">
+                <a href="{{ url_for('kyc.upload') }}" class="bg-white text-black font-bold py-2.5 px-6 rounded-full hover:bg-gray-200 transition-all flex items-center shadow-lg">
                     <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
                     New Verification
-                </button>
+                </a>
             </div>
         </div>
 
@@ -115,22 +115,28 @@
                             <th>Action</th>
                         </tr>
                     </thead>
-                    <tbody class="text-white">
-                        {% for req in current_user.kyc_requests[:5] %}
-                        <tr>
+                    <tbody class="text-white" id="cases-table-body">
+                        {% for req in cases[:5] %}
+                        <tr class="cursor-pointer case-row" data-url="{{ url_for('kyc.result', case_id=req.id) }}">
                             <td>
                                 <div class="flex items-center">
                                     <i data-lucide="file-text" class="w-4 h-4 mr-3 text-gray-500"></i>
-                                    {{ req.document_type|replace('_', ' ')|title }}
+                                    {{ req.verification_type|replace('_', ' ')|title }}
                                 </div>
                             </td>
-                            <td><span class="badge badge-{{ req.status }}">{{ req.status }}</span></td>
-                            <td>{{ req.organization.name if req.organization else 'Self' }}</td>
+                            <td>
+                                <span class="badge
+                                  {% if req.status == 'verified' %} badge-approved
+                                  {% elif req.status == 'rejected' %} badge-rejected
+                                  {% else %} badge-pending
+                                  {% endif %}">{{ req.status }}</span>
+                            </td>
+                            <td>{{ req.institution.name if req.institution else 'Self' }}</td>
                             <td class="text-gray-500 text-sm">{{ req.created_at.strftime('%b %d, %Y') }}</td>
                             <td>
-                                <button class="p-2 hover:bg-gray-800 rounded-lg transition-colors text-gray-400 hover:text-white">
+                                <a href="{{ url_for('kyc.result', case_id=req.id) }}" class="p-2 hover:bg-gray-800 rounded-lg transition-colors text-gray-400 hover:text-white">
                                     <i data-lucide="more-horizontal" class="w-5 h-5"></i>
-                                </button>
+                                </a>
                             </td>
                         </tr>
                         {% else %}
@@ -138,7 +144,7 @@
                             <td colspan="5" class="py-20 text-center">
                                 <i data-lucide="shield-alert" class="w-12 h-12 mx-auto mb-4 text-gray-600"></i>
                                 <p class="text-gray-500">No verification history found.</p>
-                                <button class="mt-4 text-primary font-bold hover:underline">Start your first verification</button>
+                                <a href="{{ url_for('kyc.upload') }}" class="mt-4 text-primary font-bold hover:underline inline-block">Start your first verification</a>
                             </td>
                         </tr>
                         {% endfor %}
@@ -161,6 +167,22 @@
             card.style.opacity = '1';
             card.style.transform = 'translateY(0)';
         }, 100 + (index * 100));
+    });
+
+    // Handle case row clicks
+    document.addEventListener('DOMContentLoaded', () => {
+        const caseRows = document.querySelectorAll('.case-row');
+        caseRows.forEach(row => {
+            row.addEventListener('click', (e) => {
+                // Don't trigger if clicking the link in the Action column
+                if (!e.target.closest('a')) {
+                    const url = row.getAttribute('data-url');
+                    if (url) {
+                        window.location.href = url;
+                    }
+                }
+            });
+        });
     });
 </script>
 {% endblock %}

@@ -1,10 +1,7 @@
 import os
-from urllib.parse import unquote, urlparse
-
 from dotenv import load_dotenv
 
 load_dotenv()
-
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
@@ -13,64 +10,32 @@ def _database_settings():
     database_url = os.getenv('DATABASE_URL', '').strip()
 
     if database_url:
-        parsed = urlparse(database_url)
-        if parsed.scheme not in {'mysql', 'mysql+pymysql'}:
-            raise ValueError('DATABASE_URL must use a MySQL scheme')
+        return database_url
 
-        return {
-            'host': parsed.hostname or '127.0.0.1',
-            'port': parsed.port or 3306,
-            'user': unquote(parsed.username or ''),
-            'password': unquote(parsed.password or ''),
-            'database': (parsed.path or '/').lstrip('/'),
-        }
+    host = os.getenv('DB_HOST', 'localhost')
+    port = int(os.getenv('DB_PORT', 3306))
+    user = os.getenv('DB_USER', 'root')
+    password = os.getenv('DB_PASSWORD', '')
+    database = os.getenv('DB_NAME', 'nagarikapi')
+    ssl_ca = os.getenv('SSL_CA', '')
 
-    return {
-        'host': os.getenv('DB_HOST', '127.0.0.1'),
-        'port': int(os.getenv('DB_PORT', '3306')),
-        'user': os.getenv('DB_USER', 'root'),
-        'password': os.getenv('DB_PASSWORD', ''),
-        'database': os.getenv('DB_NAME', 'nagarikapi'),
-    }
-
-
-def _resolve_ssl_ca():
-    ssl_ca = os.getenv('SSL_CA', '').strip()
-    if not ssl_ca:
-        default_ca = os.path.join(BASE_DIR, 'ca.pem')
-        return default_ca if os.path.exists(default_ca) else ''
-
-    if os.path.isabs(ssl_ca):
-        return ssl_ca
-
-    return os.path.join(BASE_DIR, ssl_ca)
-
-
-MYSQL_SETTINGS = _database_settings()
+    if user and password and host and database:
+        if ssl_ca:
+            return f"mysql+pymysql://{user}:{password}@{host}:{port}/{database}?ssl_ca={ssl_ca}"
+        else:
+            return f"mysql+pymysql://{user}:{password}@{host}:{port}/{database}"
+    
+    # Fallback to SQLite
+    return f"sqlite:///{os.path.join(BASE_DIR, 'nagarikapi.db')}"
 
 
 class Config:
-    SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key')
-    # Allow forcing sqlite fallback in dev: set USE_SQLITE=1 in env
-    USE_SQLITE = os.getenv('USE_SQLITE', '').strip().lower() in {'1', 'true', 'yes', 'on'}
-
-    MYSQL_HOST = '' if USE_SQLITE else MYSQL_SETTINGS['host']
-    MYSQL_PORT = MYSQL_SETTINGS['port']
-    MYSQL_USER = MYSQL_SETTINGS['user']
-    MYSQL_PASSWORD = MYSQL_SETTINGS['password']
-    MYSQL_DATABASE = MYSQL_SETTINGS['database']
-    MYSQL_SSL_CA = _resolve_ssl_ca()
+    SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
+    SQLALCHEMY_DATABASE_URI = _database_settings()
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLITE_PATH = os.getenv('SQLITE_PATH', os.path.join(BASE_DIR, 'nagarikapi.db'))
-
-    # Build SQLALCHEMY_DATABASE_URI from MySQL settings if available
-    if MYSQL_USER or MYSQL_PASSWORD or MYSQL_HOST or MYSQL_DATABASE:
-        user = MYSQL_USER or ''
-        password = MYSQL_PASSWORD or ''
-        auth = f"{user}:{password}@" if user or password else ''
-        host = MYSQL_HOST or '127.0.0.1'
-        port = f":{MYSQL_PORT}" if MYSQL_PORT else ''
-        database = MYSQL_DATABASE or ''
-        SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{auth}{host}{port}/{database}"
-    else:
-        SQLALCHEMY_DATABASE_URI = ''
+    SQLALCHEMY_ECHO = False
+    UPLOAD_FOLDER = os.path.join(BASE_DIR, 'app', 'static', 'uploads')
+    MAX_CONTENT_LENGTH = 10 * 1024 * 1024  # 10MB
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+    GOOGLE_APPLICATION_CREDENTIALS = os.getenv('GOOGLE_APPLICATION_CREDENTIALS', 'google_vision.json')
+    APP_URL = os.getenv('APP_URL', 'http://localhost:5000')

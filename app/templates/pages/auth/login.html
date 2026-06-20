@@ -153,6 +153,7 @@
         {% endwith %}
 
         <form method="POST" action="{{ url_for('auth.login') }}">
+            {{ csrf_token() }}
             <div class="ng-form-group">
                 <label>Work Email</label>
                 <input type="email" name="email" placeholder="name@company.com" required>

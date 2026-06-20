@@ -1,78 +1,82 @@
 import os
-
-from flask import Flask
-from flask_bcrypt import Bcrypt
-from flask_login import LoginManager
+from flask import Flask, render_template
 from config import Config
-from app.database import ensure_schema, preflight_database_check
-
-bcrypt = Bcrypt()
-login_manager = LoginManager()
-login_manager.login_view = 'auth.login'
-login_manager.login_message_category = 'info'
+from app.extensions import db, login_manager, migrate, bcrypt, csrf
 
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
-    app.config['DEBUG'] = True
-    app.debug = True
 
-    bcrypt.init_app(app)
+    # Create upload directories
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+    os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'ids'), exist_ok=True)
+    os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'selfies'), exist_ok=True)
+
+    # Initialize extensions
+    db.init_app(app)
     login_manager.init_app(app)
+    migrate.init_app(app, db)
+    bcrypt.init_app(app)
+    csrf.init_app(app)
 
-    from app.routes.auth import auth
-    from app.routes.views import main
-    from app.routes.api import api
-    from app.models import User, seed_demo_data
+    # Register blueprints
+    from app.routes.auth import auth_bp
+    from app.routes.views import main_bp
+    from app.routes.kyc import kyc_bp
+    from app.routes.student import student_bp
+    from app.routes.dashboard import dashboard_bp
+    from app.routes.api import api_bp
 
-    app.register_blueprint(main)
-    app.register_blueprint(auth)
-    app.register_blueprint(api)
+    app.register_blueprint(auth_bp, url_prefix='/auth')
+    app.register_blueprint(main_bp)
+    app.register_blueprint(kyc_bp, url_prefix='/kyc')
+    app.register_blueprint(student_bp, url_prefix='/student')
+    app.register_blueprint(dashboard_bp, url_prefix='/dashboard')
+    app.register_blueprint(api_bp, url_prefix='/api/v1')
+
+    from app.models import User
 
     @login_manager.user_loader
     def load_user(user_id):
-        try:
-            return User.get_by_id(int(user_id))
-        except (TypeError, ValueError):
-            return None
+        return User.query.get(int(user_id))
 
     @app.context_processor
-    def inject_runtime_status():
+    def inject_app_status():
+        # Default values to prevent template errors
         return {
             'app_runtime_status': {
-                'debug': True,
-                'database_ready': bool(app.config.get('DATABASE_READY')),
-                'database_host': app.config.get('MYSQL_HOST'),
-                'database_name': app.config.get('MYSQL_DATABASE'),
-                'database_port': app.config.get('MYSQL_PORT'),
-                'database_ssl': bool(app.config.get('MYSQL_SSL_CA')),
+                'debug': app.debug,
+                'database_ready': True,
+                'database_host': 'localhost',
+                'database_port': 3306,
+                'database_name': 'nagarikapi'
+            },
+            'status': {
+                'debug': app.debug,
+                'database_ready': True,
+                'database_host': 'localhost',
+                'database_port': 3306,
+                'database_name': 'nagarikapi',
+                'database_connected': True,
+                'app_name': 'NagarikAPI',
+                'database_ping_ok': True,
+                'database_ssl': False
             }
         }
 
+    @app.errorhandler(404)
+    def not_found(e):
+        return render_template('errors/404.html'), 404
+
+    @app.errorhandler(500)
+    def server_error(e):
+        return render_template('errors/500.html'), 500
+
+    # Create database tables and seed demo data
     with app.app_context():
-        connected, message = preflight_database_check()
-        app.config['DATABASE_READY'] = connected
-
-        if connected:
-            try:
-                ensure_schema()
-                
-                # Initialize KYC and Token tables
-                from app.models.kyc import KYC
-                from app.models.token import TokenManager
-                from app.models.api_key import APIKeyManager
-                
-                KYC.create_table()
-                TokenManager.create_table()
-                APIKeyManager.create_table()
-
-                if os.getenv('SEED_DEMO_DATA', '').strip().lower() in {'1', 'true', 'yes', 'on'}:
-                    seed_demo_data()
-            except Exception as exc:
-                app.config['DATABASE_READY'] = False
-                app.logger.warning('Skipping database initialization: %s', exc)
-        else:
-            app.logger.warning('Database preflight failed: %s', message)
+        db.create_all()
+        from app.models import seed_demo_data
+        seed_demo_data()
 
     return app

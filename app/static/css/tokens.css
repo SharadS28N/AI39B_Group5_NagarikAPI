@@ -1,43 +1,43 @@
 /* ============================================
-   Design Tokens - Light Theme (Professional SaaS)
+   Design Tokens - Dark Theme (Professional SaaS)
    ============================================ */
 
 :root {
-  /* Color Palette - Light Theme */
-  --color-bg-primary: #fcfbf7;
-  --color-bg-secondary: #f6f1e8;
-  --color-bg-tertiary: #efe8de;
-  --color-bg-overlay: rgba(17, 16, 15, 0.035);
-  --color-border: #e6ddd0;
-  --color-border-light: #f3ece3;
-  --color-border-dark: #d3c6b8;
+  /* Color Palette - Dark Theme */
+  --color-bg-primary: #050505;
+  --color-bg-secondary: #0a0a0a;
+  --color-bg-tertiary: #111111;
+  --color-bg-overlay: rgba(255, 255, 255, 0.035);
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-border-light: rgba(255, 255, 255, 0.06);
+  --color-border-dark: rgba(255, 255, 255, 0.12);
   
   /* Text Colors */
-  --color-text-primary: #111111;
-  --color-text-secondary: #4d463f;
-  --color-text-tertiary: #7a726a;
-  --color-text-muted: #a79d92;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: rgba(255, 255, 255, 0.7);
+  --color-text-tertiary: rgba(255, 255, 255, 0.5);
+  --color-text-muted: rgba(255, 255, 255, 0.3);
   
   /* Accent & Brand Colors */
-  --color-accent-primary: #111111;
-  --color-accent-secondary: #2e2a27;
-  --color-accent-light: #efe6dc;
-  --color-accent-dark: #060606;
+  --color-accent-primary: #8b5cf6;
+  --color-accent-secondary: #a78bfa;
+  --color-accent-light: rgba(139, 92, 246, 0.1);
+  --color-accent-dark: #6d28d9;
   
   /* Functional Colors */
-  --color-success: #1d7a43;
-  --color-success-light: #ddf2e5;
-  --color-error: #b42318;
-  --color-error-light: #fee4e2;
-  --color-warning: #a16207;
-  --color-warning-light: #fef0c7;
-  --color-info: #52525b;
-  --color-info-light: #e4e4e7;
+  --color-success: #10b981;
+  --color-success-light: rgba(16, 185, 129, 0.1);
+  --color-error: #ef4444;
+  --color-error-light: rgba(239, 68, 68, 0.1);
+  --color-warning: #f59e0b;
+  --color-warning-light: rgba(245, 158, 11, 0.1);
+  --color-info: #6366f1;
+  --color-info-light: rgba(99, 102, 241, 0.1);
   
   /* Gradients */
-  --gradient-accent: linear-gradient(135deg, #111111, #404040);
-  --gradient-bg-radial: radial-gradient(circle at 60% 20%, rgba(17, 17, 17, 0.05) 0%, transparent 50%);
-  --gradient-card: linear-gradient(160deg, #ffffff, #fcfaf6);
+  --gradient-accent: linear-gradient(135deg, #8b5cf6, #6366f1);
+  --gradient-bg-radial: radial-gradient(circle at 60% 20%, rgba(139, 92, 246, 0.15) 0%, transparent 50%);
+  --gradient-card: linear-gradient(160deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
   
   /* Spacing System (4px base) */
   --space-0: 0;
@@ -59,13 +59,14 @@
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
   --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
   --radius-full: 9999px;
   
   /* Typography */
   --font-family-sans: "Space Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
     "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   --font-family-display: "Space Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-family-mono: "Courier New", monospace;
+  --font-family-mono: "Fira Code", "Courier New", monospace;
   
   /* Font Sizes */
   --text-xs: 0.75rem;
@@ -92,12 +93,12 @@
   --line-height-relaxed: 1.75;
   
   /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.1);
-  --shadow-xl: 0 20px 25px -5px rgba(15, 23, 42, 0.1);
-  --shadow-2xl: 0 25px 50px -12px rgba(15, 23, 42, 0.15);
-  --shadow-glow: 0 0 30px rgba(37, 99, 235, 0.15);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+  --shadow-glow: 0 0 30px rgba(139, 92, 246, 0.2);
   
   /* Z-Index Scale */
   --z-dropdown: 1000;
