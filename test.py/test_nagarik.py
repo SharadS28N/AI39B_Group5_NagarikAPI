@@ -227,3 +227,10 @@ def test_dashboard_redirects_unauthenticated_user(client):
     response = client.get('/dashboard', follow_redirects=True)
     assert response.status_code == 200
     assert b'login' in response.data.lower()
+
+
+
+def test_admin_dashboard_redirects_unauthenticated_user(client):
+    response = client.get('/dashboard/admin', follow_redirects=True)
+    assert response.status_code == 200
+    assert b'login' in response.data.lower()
