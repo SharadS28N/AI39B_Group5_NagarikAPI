@@ -3,6 +3,11 @@ env
 nagarikapi.db
 package-lock.json
 package-lock.json
+google_vision.json
+BUILD_GUIDE.MD
+test_error.py
+test_routes.py
+views.py
 ca.crt
 venv/
 __pycache__/
