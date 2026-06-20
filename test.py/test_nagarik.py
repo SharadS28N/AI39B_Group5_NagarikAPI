@@ -205,3 +205,8 @@ def test_company_registration_number_is_unique(db):
 def test_homepage_loads_successfully(client):
     response = client.get('/')
     assert response.status_code == 200
+
+
+def test_about_page_loads_successfully(client):
+    response = client.get('/about')
+    assert response.status_code == 200
