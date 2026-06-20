@@ -220,3 +220,10 @@ def test_pricing_page_loads_successfully(client):
 def test_solutions_page_loads_successfully(client):
     response = client.get('/solutions')
     assert response.status_code == 200
+
+
+
+def test_dashboard_redirects_unauthenticated_user(client):
+    response = client.get('/dashboard', follow_redirects=True)
+    assert response.status_code == 200
+    assert b'login' in response.data.lower()
