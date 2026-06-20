@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, jsonify, redirect, url_for, current_app
+from flask import Blueprint, render_template, request, jsonify, redirect, url_for, current_app, flash
 from flask_login import login_required, current_user
 from app.models import KYCRequest, User, Company
 from app.extensions import db
