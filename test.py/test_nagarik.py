@@ -215,3 +215,8 @@ def test_about_page_loads_successfully(client):
 def test_pricing_page_loads_successfully(client):
     response = client.get('/pricing')
     assert response.status_code == 200
+
+
+def test_solutions_page_loads_successfully(client):
+    response = client.get('/solutions')
+    assert response.status_code == 200
